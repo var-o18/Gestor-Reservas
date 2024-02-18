@@ -1,4 +1,7 @@
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.Scanner;
 
 public class Validaciones {
     /**
@@ -17,15 +20,35 @@ public class Validaciones {
             for (int i = 0; i < 9; i++) {
                 //Telefono solo numeros
                 if (numero_telefono.charAt(i) < '0' || numero_telefono.charAt(i) > '9') {
-                    System.out.println("El telefono introducido es incorrecto");
+                    System.out.print("Telefono incoreecto, vuelve a introducirlo: ");
                     return false;
                 }
             }
         } else {
-            System.out.println("El telefono introducido es incorrecto");
+            System.out.print("Telefono incoreecto, vuelve a introducirlo: ");
             return false;
         }
 
+        return true;
+
+    }
+    public static boolean validarNumeros(String texto) {
+        /**
+         * Verificamos si la cadena se encuentra a null es decir vacia o la cadena esta a null
+         */
+        if (texto == null || texto.isEmpty()) {
+            return false;
+
+        }
+
+        for (int i = 0; i < texto.length(); i++) {
+            char caracter = texto.charAt(i);
+            if (caracter < '0' || caracter > '9') {
+                return false;
+            }
+        }
+
+        // Si llegamos aquí, todos los caracteres son números
         return true;
     }
 
@@ -33,44 +56,50 @@ public class Validaciones {
      * @param asiento_elegido Recoge un String y comprueba si está compuesto los caracteres permitidios y si los asientos estan reservados
      * @return devuelve true o false, true cuando se introduce el asiento correcto, bien no este reservado, o este dentro del rango y false el resto.
      */
-    public static boolean ComprobarAsientos(String asiento_elegido) {
+
+    public static boolean ComprobarAsientos(String asiento_elegido, Evento evento) {
+        Butaca butaca;
+        boolean comprobarasiento=false;
         if (asiento_elegido.length() == 2) {
             asiento_elegido = asiento_elegido.toUpperCase();
             char letra = asiento_elegido.charAt(0);
             char numero = asiento_elegido.charAt(1);
             //Condicion de asientos reservados y rangos de letras y numeros
-            if (asiento_elegido.equals("A1") || asiento_elegido.equals("B5") || asiento_elegido.equals("C6")) {
-                System.out.println("Los asientos elegidos entan reservados, vuelva a elegir");
-            } else if (letra < 'A' || letra > 'C') {
-                System.out.println("El asiento elegido no es valido");
-            } else if (numero < '1' || numero > '6') {
-                System.out.println("El asiento elegido no es valido");
-            } else {
-                return true;
+            if ( ( letra >= 'A' && letra<= 'F') && (numero>='1' && numero<='6')) {
+                butaca = evento.getSala().asociar_butaca(asiento_elegido);
+                if (butaca.getDisponible()){
+                    comprobarasiento=true;
+                }else{
+                    System.out.println("El asiento no esta dispobible");
+                }
             }
 
+        }else {
+            System.out.println("Asiento introducido no es correcto, vuelva a introducirlo: ");
         }
-        return false;
+       return comprobarasiento;
     }
 
     /**
      * @param nombre Recoge un String y comprueba si solo son letras
      * @return devuelve true si solo son letras y false si se encuentra algun numero, o no son letras
      */
-    public static boolean ComprobarNombre(String nombre) {
+    public static boolean ComprobarNombreApellidos(String nombre) {
         // Una condicion minima para que se tengan que introducir caracteres oal menos 5 obligatoriamente
+        nombre.replace(" ","");
         if (nombre.length() >= 5){
             for (int i = 0; i < nombre.length(); i++) {
                 char carac_nombre = nombre.charAt(i);
                 if ((carac_nombre >= 'a' && carac_nombre <= 'z') || (carac_nombre >= 'A' && carac_nombre <= 'Z')  || carac_nombre == ' ') {
                 } else {
-                    System.out.println("El nombre introducido es erroneo, vuelva a introducirlo");
+                    System.out.print("Contiene caracteres no validos, vuelve a introducirlo: ");
                     i = carac_nombre - 1;
                     return false;
                 }
 
             }
         }else {
+            System.out.print("Contiene caracteres no validos, vuelve a introducirlo: ");
             return false;
         }
         return true;
@@ -94,13 +123,13 @@ public class Validaciones {
             for (int i = 0; i <= dni.length() - 1; i++) {
                 if (i <= 7) {
                     if (((dni.charAt(i) > '9' && dni.charAt(i) < '0') || (dni.charAt(i) >= 'A' && dni.charAt(i) <= 'Z'))) {
-                        System.out.println("DNI INVALIDO, REPITELO");
+                        System.out.print("DNI invalido, vuelva a introducirlo: ");
                         return false;
                     }
                 } else {
                     int resto = (Integer.parseInt(dni.substring(0, 8))) % 23;// division del dni entre 23.
                     if (dni_letra != letra.charAt(resto)) {
-                        System.out.println("Tu letra no coincide con este DNI");
+                        System.out.print("DNI invalido, vuelva a introducirlo:  ");
                         return false;
                     } else {
                         return true;
@@ -108,7 +137,7 @@ public class Validaciones {
                 }
             }
         } else {
-            System.out.println("TU DNI ES DIFERENTE...");
+            System.out.print("DNI invalido, vuelva a introducirlo: ");
             return false;
         }
         return true;
@@ -120,35 +149,37 @@ public class Validaciones {
      */
     public static boolean ComprobarCorreo(String correo) {
         correo = correo.toUpperCase();
+        correo = correo.replace(" ","");
         //condicion para que minimo tenga que tener 1 caracter, y que el primiero no sea ni @ ni .
         if (correo.length() != 0) {
             if (correo.charAt(0) == '@' || correo.charAt(0) == '.') {
-                System.out.println("Correo invalido");
+                System.out.print("Vuelve a introducir el correo electronico: ");
                 return false;
             }
         }
         //Bucle for para comprobar que no hay caracteres fuera de lo comun dentro del correo
         for (int i = 0; i < correo.length(); i++) {
             if ((correo.charAt(i) < 'A' ||  correo.charAt(i) > 'Z') && (correo.charAt(i) != '@' && correo.charAt(i) != '.') && (correo.charAt(i) <= '0' || correo.charAt(i) >= '9')) {
+                System.out.print("Vuelve a introducir el correo electronico: ");
                 return false;
             }
         }
 
         // Verificar si el correo tiene una @
         if (correo.indexOf("@") == -1) {
-            System.out.println("Vuelve a introducir el correo electronico");//El correo no tiene @
+            System.out.print("Vuelve a introducir el correo electronico: ");//El correo no tiene @
             return false;
         } else {
             // Verificar si el correo tiene más de una @
             int indice = correo.indexOf("@");
             int indice_punto= correo.indexOf(".");
             if (correo.indexOf("@", indice + 1) != -1) {
-                System.out.println("Vuelve a introducir el correo electronico");//Contiene @ de mas
+                System.out.print("Vuelve a introducir el correo electronico: ");//Contiene @ de mas
                 return false;
             } else {
                 // Verificar si el correo tiene un punto después de la @
                 if (correo.indexOf(".", indice) == -1) {
-                    System.out.println("Vuelve a introducir el correo electronico");//Falta un .
+                    System.out.print("Vuelve a introducir el correo electronico: ");//Falta un .
                     return false;
                 }else {
                     //correo.substring((correo.indexOf(".", indice))
@@ -169,7 +200,7 @@ public class Validaciones {
     public static boolean ComprobarIban(String iban) {
         //Comprobar que Carcteres estan dentro del rango y contiene letras menores que A Y mayores de Z
         if (iban.length() != 24) {
-            System.out.println("Tu IBAN es incorrecto");//Contiene mas carcteres de lo normal o menos carcteres
+            System.out.print("El IBAN no es valido, vuelve a introducirlo: ");//Contiene mas carcteres de lo normal o menos carcteres
             return false;
         } else {
 
@@ -206,7 +237,7 @@ public class Validaciones {
 
         //Condiciconal, si resto de la division es diferente de 1 es falso, si no es verdadero.
         if (!resultado.equals("1")) {
-            System.out.println("El IBAN no es valido");
+            System.out.println("El IBAN no es valido, vuelve a introducirlo: ");
             return false;
         } else {
             System.out.println("IBAN validado correctamente");
@@ -249,5 +280,105 @@ public class Validaciones {
         }
 
         return token;
+    }
+    /**
+     * @param fecha_nacimiento se comprueban diversos carcteres obligatorios para la fecha
+     * @return devuelve true en caso de que la fecha sea correcta y false en caso contrario, asi tambien devolviendo una nueva introducción de fecha
+     */
+     public static boolean ValidarFecha(String fecha_nacimiento){
+
+         if (fecha_nacimiento.length() != 10) {
+             System.out.println("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY): ");
+             return false;
+         } else {
+             String fechanum = fecha_nacimiento.replace("-", "");
+             if (!Validaciones.validarNumeros(fechanum)) {
+                 System.out.println("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY):");
+                 return false;
+             } else {
+                 String[] dia_mes_anyo = fecha_nacimiento.split("-");
+
+                 //Pasar día, mes y año a valor numérico
+                 int dia = Integer.parseInt(dia_mes_anyo[0]);
+                 int mes = Integer.parseInt(dia_mes_anyo[1]);
+                 int anyo = Integer.parseInt(dia_mes_anyo[2]);
+
+                 //Comprobar año
+                 if (anyo > 1920 && anyo < Integer.parseInt(String.valueOf(Year.now()))){
+
+                     //Comprobar mes
+                     if (mes >= 1 && mes <= 12) {
+
+                         //Comprobar que el día corresponde con el mes
+                         if (mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12) {
+                             if (dia >= 1 && dia <=31) {
+                                 return true;
+                             } else {
+                                 System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                                 return false;
+                             }
+                         }
+
+                         if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+                             if (dia >= 1 && dia <=30) {
+                                 return true;
+                             } else {
+                                 System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                                 return false;
+                             }
+                         }
+
+                         if (mes == 2) {
+                             /**
+                              * Se compruueba si el año es bisiesto pero antes coprueba que el mes sea dos es decir febrero,
+                              * y una vez easo comprueba si es bisiesto. Gracias al año entre 400 pero que el resto de 0.
+                             * */
+                             if (anyo%400 == 0) {
+                                 if (dia >= 1 && dia <=29) {
+                                     return true;
+                                 } else {
+                                     System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                                     return false;
+                                 }
+                             } else {
+                                 /**
+                                  * Ahora lo que hace es comprobar que el año no sea bisiesto, ya que uno son 28 dias en caso de no bisiest y y 29 en
+                                  * caso de bisiesto
+                                  * */
+                                 if (dia >= 1 && dia <=28) {
+                                     return true;
+                                 } else {
+                                     System.out.print("Día no válido. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                                     return false;
+                                 }
+                             }
+                         }
+
+                     } else {
+                         System.out.println("El mes debe estar comprendido entre 1 y 12. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                         return false;
+                     }
+                 } else {
+                     System.out.println("El año debe estar comprendido entre 1900 y " + Year.now() + ". Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                     return false;
+                 }
+             }
+         }
+         return true;
+}
+
+    /**
+     * @param fecha se parsea la fecha al formato de validacion es decir para que el usuario pueda introducirlo de otra manera en vez de año mes dia,
+     *              introducimos de manera mas comoda dia mes y año
+     * @return devuelve la fecha parseada, para mostrarla posteriormente en cualquier dato pedido.
+     */
+    static LocalDate fechaParseada(String fecha) {
+        String[] dia_mes_anyo = fecha.split("-");
+        int dia = Integer.parseInt(dia_mes_anyo[0]);
+        int mes = Integer.parseInt(dia_mes_anyo[1]);
+        int anyo = Integer.parseInt(dia_mes_anyo[2]);
+
+        LocalDate fecha_parseada = LocalDate.of(anyo,mes,dia);
+        return fecha_parseada;
     }
 }

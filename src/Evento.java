@@ -1,15 +1,32 @@
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Evento {
     private String nombre;
     private String invitado;
     private Sala sala;
-    private Date fecha;
+    private LocalDate fecha;
     private String hora;
     private double precio;
     private String tipoEvento;
-    private int numeoroAsistentesmaximo;
-    private String listaAsistentes;
+    private int numeroAsistentesmaximo;
+    private ArrayList<Asistente> listaAsistentes = new ArrayList<>();
+
+
+    public Evento(){}
+    public Evento(String nombre, String invitado, Sala sala, String fecha, String hora, double precio, String tipoEvento, int numeroAsistentesmaximo) {
+        this.nombre = nombre;
+        this.invitado = invitado;
+        this.sala = sala;
+        this.fecha = LocalDate.parse(fecha);
+        this.hora = hora;
+        this.precio = precio;
+        this.tipoEvento = tipoEvento;
+        this.numeroAsistentesmaximo = numeroAsistentesmaximo;
+    }
+
 
     public String getNombre() {
         return nombre;
@@ -35,11 +52,19 @@ public class Evento {
         this.sala = sala;
     }
 
-    public Date getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public ArrayList<Asistente> getListaAsistentes() {
+        return listaAsistentes;
+    }
+
+    public void setListaAsistentes(ArrayList<Asistente> listaAsistentes) {
+        this.listaAsistentes = listaAsistentes;
+    }
+
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 
@@ -68,20 +93,11 @@ public class Evento {
     }
 
     public int getNumeoroAsistentesmaximo() {
-        return numeoroAsistentesmaximo;
+        return numeroAsistentesmaximo;
     }
 
     public void setNumeoroAsistentesmaximo(int numeoroAsistentesmaximo) {
-        this.numeoroAsistentesmaximo = numeoroAsistentesmaximo;
+        this.numeroAsistentesmaximo = numeoroAsistentesmaximo;
     }
-
-    public String getListaAsistentes() {
-        return listaAsistentes;
-    }
-
-    public void setListaAsistentes(String listaAsistentes) {
-        this.listaAsistentes = listaAsistentes;
-    }
-    // TODO: 08/01/2024 meter anidamientos al main
 }
 

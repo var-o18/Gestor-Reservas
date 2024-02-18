@@ -1,12 +1,23 @@
+import java.util.ArrayList;
+
 public class Sala {
-    private String nombre;
-    private int cpacidad_maxima;
-    private String lista_butacas;
+    public String nombre;
+    public int cpacidad_maxima;
+
+    public ArrayList<Butaca> lista_butacas=new ArrayList<>();
     private String buutacasDisponibles;
-    private double dimensesionSala;
-    private boolean accesibilidad;
+    public double dimensesionSala;
+    public boolean accesibilidad;
     private String caracteristicasAcusticas;
     private String observcaciones;
+
+    public Sala(String nombre, int cpacidad_maxima, ArrayList<Butaca> lista_butacas, double dimensesionSala) {
+        this.nombre = nombre;
+        this.cpacidad_maxima = cpacidad_maxima;
+        this.lista_butacas = lista_butacas;
+        this.dimensesionSala = dimensesionSala;
+    }
+
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -24,11 +35,11 @@ public class Sala {
         return cpacidad_maxima;
     }
 
-    public void setLista_butacas(String lista_butacas) {
+    public void setLista_butacas(ArrayList<Butaca> lista_butacas) {
         this.lista_butacas = lista_butacas;
     }
 
-    public String getLista_butacas() {
+    public ArrayList<Butaca> getLista_butacas() {
         return lista_butacas;
     }
 
@@ -74,5 +85,15 @@ public class Sala {
     public boolean comprobarCapacidad(int numeroAsistentes){
         return numeroAsistentes <= cpacidad_maxima;
     }
-    // TODO: 08/01/2024 meter anidaciones al main 
+
+    public Butaca asociar_butaca(String posicion){
+        Butaca butaca_asociada=new Butaca();
+        for(Butaca b : lista_butacas){
+            if (b.getCordenada().equals(posicion)){
+               butaca_asociada = b;
+            }
+        }1
+        return butaca_asociada;
+    }
+    // TODO: 08/01/2024 Instanciar Main
 }

@@ -1,13 +1,24 @@
+import java.time.LocalDate;
 import java.util.Date;
 
-public class Reservar {
+public class Reserva {
     private String id;
     private Asistente asistente;
     private Evento evento;
     private Butaca butaca;
-    private Date fecha;
+    private LocalDate fecha;
     private String hora;
     private String token;
+
+    public Reserva(Asistente asistente, Evento evento, Butaca butaca, LocalDate fecha, String hora) {
+        this.id = id;
+        this.asistente = asistente;
+        this.evento = evento;
+        this.butaca = butaca;
+        this.fecha = fecha;
+        this.hora = hora;
+        this.id = Validaciones.RealizaTocken();
+    }
 
     public String getId() {
         return id;
@@ -49,11 +60,11 @@ public class Reservar {
         this.evento = evento;
     }
 
-    public Date getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 
@@ -64,5 +75,16 @@ public class Reservar {
     public void setToken(String token) {
         this.token = token;
     }
-    // TODO: 08/01/2024 meter anidamientos al main
+
+    public void reservas_realizadas(){
+        System.out.println("Id reserva: "+id);
+        System.out.println("Asistente: "+asistente.getNombre());
+        System.out.println("Evento: "+evento.getNombre());
+        System.out.println("Butaca: "+butaca.getCordenada());
+        System.out.println("Fecha: "+evento.getFecha());
+        System.out.println("Hora: "+evento.getHora());
+    }
+    // TODO: 15/01/2024 comprobarDisponibilidad "metodo"
+    // TODO: 15/01/2024 reservarPlaza "metodo"
+    // TODO: 15/01/2024 generarToken "metodo"
 }

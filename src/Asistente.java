@@ -7,15 +7,18 @@ public class Asistente {
     private String telefono;
     private String dni;
     private LocalDate fecha_nacimiento;
+    private String password;
+    private boolean esAdmin;
 
     Asistente(){}
-    Asistente(String nombre,String apellidos, String email,String telefono,String dni,  LocalDate fecha_nacimiento){
+    Asistente(String nombre,String apellidos, String email, String telefono,String dni,  LocalDate fecha_nacimiento, String password){
         this.nombre= nombre;
         this.apellidos= apellidos;
         this.email= email;
         this.telefono= telefono;
         this.dni= dni;
-        this.fecha_nacimiento= fecha_nacimiento;
+        this.fecha_nacimiento = fecha_nacimiento;
+        this.password=password;
     }
     Asistente(String nombre, String apellidos, String email){
         this.nombre= nombre;
@@ -23,6 +26,36 @@ public class Asistente {
         this.email= email;
     }
 
+    public Asistente(String nombre, String password, boolean esAdmin) {
+        this.nombre = nombre;
+        this.password=password;
+        this.esAdmin=esAdmin;
+    }
+
+
+    public Asistente(String nombre, String apellidos, String email, String password, boolean esAdmin) {
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.email = email;
+        this.password = password;
+        this.esAdmin = esAdmin;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isEs_admin() {
+        return esAdmin;
+    }
+
+    public void setEs_admin(boolean esAdmin) {
+        this.esAdmin = esAdmin;
+    }
 
     public String getNombre() {
         return nombre;
@@ -89,5 +122,5 @@ public class Asistente {
         System.out.println("Email: "+email);
         System.out.println("DNI: "+dni);
     }
-    // TODO: 03/01/2024 Falta meter en el Main,los llamamientos
+    // TODO: 08/01/2024 Instanciar Main
 }

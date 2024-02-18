@@ -1,21 +1,31 @@
 public class Butaca {
-    private String id;
+    int id;
+    String cordenada;
     private Boolean accesibilidad;
     private Boolean disponible;
 
     Butaca(){}
-    Butaca(String id,Boolean accesibilidad, Boolean disponible) {
+    Butaca(int id,String cordenada,Boolean accesibilidad, Boolean disponible) {
         this.id = id;
         this.accesibilidad = accesibilidad;
         this.disponible = disponible;
+        this.cordenada=cordenada;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getCordenada() {
+        return cordenada;
+    }
+
+    public void setCordenada(String cordenada) {
+        this.cordenada = cordenada;
     }
 
     public Boolean getAccesibilidad() {
@@ -43,6 +53,9 @@ public class Butaca {
                 '}';
     }
 
+    /**
+     * Metodo que permite comprobar la disponibilidad de las butacas
+    */
     public boolean ocuparButaca(){
         if (disponible){
             disponible=false;
@@ -61,5 +74,5 @@ public class Butaca {
         }
         return false;
     }
-    // TODO: 08/01/2024 meter anidamientos al main
+    // TODO: 08/01/2024 Instanciar Main
 }

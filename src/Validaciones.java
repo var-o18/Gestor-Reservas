@@ -53,8 +53,9 @@ public class Validaciones {
     }
 
     /**
-     * @param asiento_elegido Recoge un String y comprueba si está compuesto los caracteres permitidios y si los asientos estan reservados
-     * @return devuelve true o false, true cuando se introduce el asiento correcto, bien no este reservado, o este dentro del rango y false el resto.
+     * @param asiento_elegido Recoge un String y comprueba si está compuesto los caracteres permitidios
+     * @param evento se recoge el evento con el que se esta trabajando y aqui se iguala el evento con la butaca mediante la funcion de asociar_butaca
+     * @return devuelve true o false, en funcion de validaciones es decir si esta disponible o no y si trabaja con los carcateres permitidos.
      */
 
     public static boolean ComprobarAsientos(String asiento_elegido, Evento evento) {
@@ -288,12 +289,12 @@ public class Validaciones {
      public static boolean ValidarFecha(String fecha_nacimiento){
 
          if (fecha_nacimiento.length() != 10) {
-             System.out.println("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY): ");
+             System.out.print("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY): ");
              return false;
          } else {
              String fechanum = fecha_nacimiento.replace("-", "");
              if (!Validaciones.validarNumeros(fechanum)) {
-                 System.out.println("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY):");
+                 System.out.print("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY):");
                  return false;
              } else {
                  String[] dia_mes_anyo = fecha_nacimiento.split("-");
@@ -355,11 +356,11 @@ public class Validaciones {
                          }
 
                      } else {
-                         System.out.println("El mes debe estar comprendido entre 1 y 12. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                         System.out.print("El mes debe estar comprendido entre 1 y 12. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
                          return false;
                      }
                  } else {
-                     System.out.println("El año debe estar comprendido entre 1900 y " + Year.now() + ". Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+                     System.out.print("El año debe estar comprendido entre 1900 y " + Year.now() + ". Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
                      return false;
                  }
              }
@@ -370,7 +371,7 @@ public class Validaciones {
     /**
      * @param fecha se parsea la fecha al formato de validacion es decir para que el usuario pueda introducirlo de otra manera en vez de año mes dia,
      *              introducimos de manera mas comoda dia mes y año
-     * @return devuelve la fecha parseada, para mostrarla posteriormente en cualquier dato pedido.
+     * @return devuelve la fecha parseada, para trabjar con ella.
      */
     static LocalDate fechaParseada(String fecha) {
         String[] dia_mes_anyo = fecha.split("-");

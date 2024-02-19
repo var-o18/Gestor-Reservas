@@ -53,10 +53,13 @@ public class Gestor {
         listado_asistentes.add(new Asistente("yo", "perez", "yo@email.com", "6544411213", "20523207p", LocalDate.of(2005, 06, 28), "12345678"));
         listado_asistentes.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", "654654654", "12345678z", LocalDate.of(2005, 06, 28), "12345678"));
 
+        /**
+         * En este bucle for se iteran salas has 6 y genera un numeor del 1 al 6 a cada sala
+         *
+         * */
         int identificador = 0;
         ArrayList<Butaca> mis_butacas = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            ;
             //GENERAR BUTACAS
             for (char fila = 'A'; fila <= 'F'; fila++) {
                 for (int columna = 1; columna <= 6; columna++) {
@@ -68,8 +71,12 @@ public class Gestor {
             //GENERAR SALAS
             listado_salas[i] = new Sala("SALA" + i, 200, mis_butacas, 504.7);
             listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
+            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
+            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
+            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
         }
-        //CREAR LISTA RESERVAS
+        //CREAR BUTACA NO DISPONIBLE
+
 
         //CREAR LISTA DE EVENTOS
         listado_eventos.add(new Evento("Concierto Ñengo", "Ñengo Flow", listado_salas[1], "2024-10-02", "20:00", 30.00, "Reggaeton", 800));
@@ -78,7 +85,11 @@ public class Gestor {
         listado_eventos.add(new Evento("Raphael", "Mi Gran Noche", listado_salas[0], "2024-05-12", "21:00", 60.00, "Pop-Español", 1200));
     }
 
-    public void menuPrincipal() {
+    /**
+     * Esta funcion esta hecha con el objetivo de dar mas facilidad a la hora de trabajar con los menus siguientes de volver atras y demas
+     * @return devuelve true en caso de que la fecha sea correcta y false en caso contrario, asi tambien devolviendo una nueva introducción de fecha
+     */
+    public void menuPrincipal(Asistente asistente) {
         String opcion_login;
         do {
             Scanner entrada_1 = new Scanner(System.in);
@@ -95,11 +106,11 @@ public class Gestor {
             switch (opcion_login) {
                 case "1":
                     System.out.println("Has seleccionado Login.");
-                    login();
+                    login(asistente);
                     break;
                 case "2":
                     System.out.println("Has seleccionado Registro.");
-                    NuevoAsistente();
+                    nuevoAsistente();
                     break;
                 case "0":
                     System.out.println("¡Hasta luego!");
@@ -110,9 +121,13 @@ public class Gestor {
             }
         } while (!opcion_login.equals("1") && !opcion_login.equals("2") && !opcion_login.equals("0"));
     }
+    /**
+     * Funcion que es el menu de principal de login, donde aprecen dos ramas una para logearte en caso de tener cuenta en DELECTARE MULTIEVENTOS y si no se relaciona con ninguna cyuenta,
+     * te manda a un gestor de seguridad que te pregunta por tu cuenta si quieres volver a logearte o registarte.
+     *
+     * */
+    public void login( Asistente asistente) {
 
-    public void login() {
-        Asistente asistente = new Asistente();
         Scanner scanner = new Scanner(System.in);
 
         /**
@@ -136,7 +151,7 @@ public class Gestor {
             do {
                 System.out.print("Contraseña invalidad, introduzca otra vez la contraseña: ");
                 password = scanner.nextLine();
-            } while (password.length() < 4);
+            } while (password.length() < 8);
         }
 
         /**
@@ -153,6 +168,7 @@ public class Gestor {
                     System.out.println("Bienvenido Administrador de DELECTARE MULTIEVENTOS");
                 } else {
                     System.out.println("Bienvenido " + correo);
+                    //porque menu de opciones tiene dentro asistente ? porque trabaja ya con el asistente es decir ya esta logueado.
                     menuDeOpciones(asistente);
                 }
 
@@ -171,15 +187,15 @@ public class Gestor {
             System.out.println("Este control de seguridad se hace\npara gestionar la seguridad del sistema\ny para evitar colapsos");
             System.out.println();
             System.out.println("1.Volver a loguearse");
-            System.out.println("2.Salir al login");
+            System.out.println("2.Registrarme en DELECTARE MULTIEVENTOS");
             System.out.println();
             System.out.print("Introducir opcion:");
             opcion_continuidad = scanner.nextLine();
             switch (opcion_continuidad) {
                 case "1":
-                    login();
+                    login(asistente);
                 case "2":
-                    menuPrincipal();
+                    nuevoAsistente();
                 default:
                     System.out.println("La opcion introducida no es correcta");
 
@@ -190,6 +206,10 @@ public class Gestor {
 
     }
 
+    /**
+     * @param asistente, este menu es el principal y ya trabajaria con el asistente ingresado, proporciona las opciones de seleccionar eventos y est asu vez mostaria los
+     * cuenta con la información de eventos de ese usuario y por ultimo la opcion de log of para deslogearse(se desloguea el asistente)
+     * */
     public void menuDeOpciones(Asistente asistente) {
         String email;
         email = asistente.getEmail();
@@ -210,9 +230,14 @@ public class Gestor {
             switch (opcion_menu) {
                 case "1":
                     boolean iteración_eventos = false;
+                    //Tenemos un do while que el array de lista de eventos
                     do {
                         String seleccion_evento;
                         System.out.println("### Selecciona el evento que desee ###");
+                        /*
+                        Este forich va recorriendo el array de lista de eventos y  hace la funcion muy snecilla que es la de mostrar el numero que es la posición del array
+                        y el nombre asociado a este numero
+                        * */
                         int i = 0;
                         for (Evento e : listado_eventos) {
                             System.out.println(i + " " + e.getNombre());
@@ -220,7 +245,12 @@ public class Gestor {
                         }
                         System.out.print("Introduzca numero de evento: ");
                         seleccion_evento = entrada_2.nextLine();
-                        if (Validaciones.validarNumeros(seleccion_evento)) {
+                        /*
+                        * Realizamos un comprobacion con un if para comprobar que tod son numeros y que la distancia de lo que se introduce sea 1,
+                        * una vez se comprueba esto, estonces pasamos a lo siguiennrte
+                        * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
+                        * */
+                        if (Validaciones.validarNumeros(seleccion_evento) && seleccion_evento.length()==1) {
                             int parseo_seleccion_evento = Integer.parseInt(seleccion_evento);
                             System.out.println(
                                     "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento).getNombre() + '\n' +
@@ -229,22 +259,27 @@ public class Gestor {
                                             "Precio del evento: " + listado_eventos.get(parseo_seleccion_evento).getPrecio() + '\n' +
                                             "Nobre de la sala: " + listado_eventos.get(parseo_seleccion_evento).getSala().getNombre()
                             );
+                            // Ahora a selección evento obtiene el nombre del evento
                             seleccion_evento = listado_eventos.get(parseo_seleccion_evento).getNombre();
+                            //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
                             evento = devolver_evento(seleccion_evento);
+                            //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
                             menu_reservas(asistente, evento);
                         } else {
                             System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
-                            iteración_eventos = true;
+                            iteración_eventos = false;
                         }
                     } while (!iteración_eventos);
                     break;
                 case "2":
                     System.out.println("Aquí puedes ver la información de tus reservas.");
+                    //nos manda al menu reservas mediante el email del asistente, ya que es el unico dato por el momento que tenemos del asistente, ya que lo ingresa por tenclado
                     mostrar_reservas(email);
                     break;
                 case "3":
                     System.out.println("¡Hasta luego!");
-                    menuPrincipal();
+                    //Esta opcion la he puesto para el casod de que el asistente quiera desloguearse.
+                    menuPrincipal(asistente);
                     break;
                 default:
                     System.out.println("Opción inválida. Por favor, selecciona una opción válida.");
@@ -252,7 +287,13 @@ public class Gestor {
         } while (!opcion_menu.equals("3"));
     }
 
-    public Asistente NuevoAsistente() {
+    /**
+     * Esta funcion genera un nuevo asistente basicamnete esta es la funcion que aprece cuando pulsamos en registrarns en delecatre multieventos,
+     * ponemos los datos que queremos introducir de nuestro nuevo asistente asi como gmail, nombre ...
+     * Una vez recogemos estos datos no almacenaos en listado_asistentes .
+     *
+     * */
+    public Asistente nuevoAsistente() {
         Scanner scaner_menu_nuevo_asistente = new Scanner(System.in);
         String opciones_menu_newasistente;
         do {
@@ -312,26 +353,28 @@ public class Gestor {
                         } while (!Validaciones.ValidarFecha(fecha_nacimiento));
 
                     }
+                    //parseamos la fecha introducida por el usuario
                     LocalDate fecha_parseada = Validaciones.fechaParseada(fecha_nacimiento);
                     System.out.println();
                     System.out.println();
                     System.out.println("#~#Ahora vamos a crear tu contraseña#~#");
                     System.out.print("Introduce tu Contraseña: ");
                     String password = scaner_menu_nuevo_asistente.nextLine();
-                    if (password.length() < 4) {
+                    if (password.length() < 8) {
                         do {
                             System.out.print("Contraseña invalidad, introduzca otra vez la contraseña: ");
                             password = scaner_menu_nuevo_asistente.nextLine();
-                        } while (password.length() < 4);
+                        } while (password.length() < 8);
                     }
                     listado_asistentes.add(new Asistente(nombre, apellidos, email, telefono, dni, fecha_parseada, password));
-                    menuDeOpciones(asistente);
+
+                    menuPrincipal(asistente);
                 case "2":
                     System.out.println("Saliendo del programa...");
                     break;
                 case "3":
                     System.out.println("Volviendo a tras...");
-                    menuPrincipal();
+                    menuPrincipal(asistente);
                     break;
                 default:
                     System.out.println("La opcion introducida no es valida!!");
@@ -342,7 +385,10 @@ public class Gestor {
 
         return new Asistente();
     }
-
+    /**
+     * @param asistente trabajamos con el objeto asistente, para relacionar la reserva con el asistente en cuestion.
+     * @param evento trabajamos con objeto evento opara asociar la reserva con el evento en cuestion.
+     * */
     public void menu_reservas(Asistente asistente, Evento evento) {
         Asistente a = new Asistente();
         Evento e = new Evento();
@@ -376,15 +422,20 @@ public class Gestor {
                         System.out.println("Escoja el asiento que desee, por favor (fila/numero: ");
                         reserva = entrada_2.nextLine();
                         reserva = reserva.toUpperCase();
+                        //Validamos los asientos con von la validación de comprobar asientos en validaciones, mediante reserva-evento
                         if (Validaciones.ComprobarAsientos(reserva, evento)) {
+                            //Ahora lo que hacemos es coger el evento asociados con la sala y asociamso mediante un metodo de la clase sala que asociamos la butaca con la reserva
                             butaca = evento.getSala().asociar_butaca(reserva);
+                            //Ahora al metodo reservar le pasamos el asistente qeu ha hecho la reserva, el evento que ha reservado y la butaca selecciona.
                             reservar(asistente, evento, butaca);
+
                         }
                     } while (!Validaciones.ComprobarAsientos(reserva, evento));
-                        confirmar_compra(asistente);
+                    confirmar_compra(asistente);
                     break;
                 case "2":
-                    System.out.println("Volver al menu par información de reserva");
+                    System.out.println("Volver al menu para información de reserva");
+                    //Metodo de opciones principal, el cual esta traajando con el asistente.
                     menuDeOpciones(asistente);
                     break;
                 default:
@@ -395,7 +446,11 @@ public class Gestor {
 
 
     }
-
+    /**
+     * @param email trabajamos sobre el email para encontrar la reserva, ya que es el unico dato que tenemos sobre el usuario
+     * realiza un forich para recorrer el array y si coincide despues el gmail con el que hay en el parametro, si coincide se llama al objeto
+     *              reservas_realizadas que este se encar de mostrar los datos de la reserva.
+     *  **/
     public void mostrar_reservas(String email) {
         for (Reserva reser : listado_reservas) {
             if (reser.getAsistente().getEmail().equals(email)) {
@@ -404,15 +459,6 @@ public class Gestor {
         }
     }
 
-    public Asistente devolver_asistente(String email) {
-        Asistente asistente = new Asistente();
-        for (Asistente asis : listado_asistentes) {
-            if (asistente.getEmail().equals(email)) {
-                asistente = asis;
-            }
-        }
-        return asistente;
-    }
 
     public Evento devolver_evento(String nombre) {
         Evento evento = new Evento();
@@ -424,12 +470,17 @@ public class Gestor {
         return evento;
     }
 
+    /**
+     * @param asistente trabajamos con el asistente que se ha introducido.
+     * @param butaca trabjamos tambien con el parametro butaca para saber que butaca se reserva
+     * @param evento trabajamos con el parametro evento para saber de que evento se ha hecho la reserva.
+     * */
     public void reservar(Asistente asistente, Evento evento, Butaca butaca) {
         for (Asistente asis : listado_asistentes) {
             if (asis.getNombre().equals(asistente.getNombre()) && asis.getApellidos().equals(asistente.getApellidos()) && asis.getEmail().equals(asistente.getEmail()) && asis.getTelefono().equals(asistente.getTelefono()) && asis.getDni().equals(asistente.getDni()) && asis.getFecha_nacimiento().equals(asistente.getFecha_nacimiento()) && asis.getPassword().equals(asistente.getPassword())) {
                 listado_reservas.add(new Reserva(asistente, evento, butaca, evento.getFecha(), evento.getHora()));
                 evento.getListaAsistentes().add(new Asistente(asistente.getNombre(), asistente.getApellidos(), asistente.getEmail(), asistente.getTelefono(), asistente.getDni(), asistente.getFecha_nacimiento(), asistente.getPassword()));
-                System.out.println("Se ha realizado tu reserva " + asistente.getNombre());
+                System.out.println("El eveto esta reservado falta, añadir forma de pago "+asistente.getNombre());
             }
 
 

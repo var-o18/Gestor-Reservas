@@ -86,13 +86,15 @@ public class Sala {
         return numeroAsistentes <= cpacidad_maxima;
     }
 
+
+
     public Butaca asociar_butaca(String posicion){
         Butaca butaca_asociada=new Butaca();
         for(Butaca b : lista_butacas){
             if (b.getCordenada().equals(posicion)){
                butaca_asociada = b;
             }
-        }1
+        }
         return butaca_asociada;
     }
     // TODO: 08/01/2024 Instanciar Main

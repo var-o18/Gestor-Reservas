@@ -97,5 +97,5 @@ public class Sala {
         }
         return butaca_asociada;
     }
-    // TODO: 08/01/2024 Instanciar Main
+
 }

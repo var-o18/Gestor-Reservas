@@ -2,7 +2,7 @@ public class Butaca {
     int id;
     String cordenada;
     private Boolean accesibilidad;
-    private Boolean disponible;
+    private Boolean disponible = true;
 
     Butaca(){}
     Butaca(int id,String cordenada,Boolean accesibilidad, Boolean disponible) {
@@ -74,5 +74,4 @@ public class Butaca {
         }
         return false;
     }
-    // TODO: 08/01/2024 Instanciar Main
 }

@@ -71,7 +71,8 @@ public class Validaciones {
                 if (butaca.getDisponible()){
                     comprobarasiento=true;
                 }else{
-                    System.out.println("El asiento no esta dispobible");
+                    System.out.println("El asiento no esta dispobible:");
+                    comprobarasiento=false;
                 }
             }
 
@@ -88,7 +89,7 @@ public class Validaciones {
     public static boolean ComprobarNombreApellidos(String nombre) {
         // Una condicion minima para que se tengan que introducir caracteres oal menos 5 obligatoriamente
         nombre.replace(" ","");
-        if (nombre.length() >= 5){
+        if (nombre.length() >= 3){
             for (int i = 0; i < nombre.length(); i++) {
                 char carac_nombre = nombre.charAt(i);
                 if ((carac_nombre >= 'a' && carac_nombre <= 'z') || (carac_nombre >= 'A' && carac_nombre <= 'Z')  || carac_nombre == ' ') {

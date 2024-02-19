@@ -1,3 +1,4 @@
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -47,11 +48,10 @@ public class Gestor {
 
     private void info_inicial() {
         //CREAR LISTA DE ASISTENTES
-        listado_asistentes.add(new Asistente("Pepe", "Rodriguez", "pepe@email.com", "12345678", false));
-        listado_asistentes.add(new Asistente("Pepa", "Rodriguez", "pepa@email.com", "12345678", false));
-        listado_asistentes.add(new Asistente("Admin", "Rodriguez", "admin@email.com", "12345678", true));
+        listado_asistentes.add(new Asistente("admin", "Rodriguez", "admin@email.com", "12345678", true));
         listado_asistentes.add(new Asistente("yo", "perez", "yo@email.com", "6544411213", "20523207p", LocalDate.of(2005, 06, 28), "12345678"));
         listado_asistentes.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", "654654654", "12345678z", LocalDate.of(2005, 06, 28), "12345678"));
+        listado_asistentes.add(new Asistente("Pepe", "perez", "pepe@email.com", "6544411213", "12345678z", LocalDate.of(2005, 06, 28), "12345678"));
 
         /**
          * En este bucle for se iteran salas has 6 y genera un numeor del 1 al 6 a cada sala
@@ -65,7 +65,7 @@ public class Gestor {
                 for (int columna = 1; columna <= 6; columna++) {
                     String pos = fila + "" + columna + "";
                     identificador++;
-                    mis_butacas.add(new Butaca((i + 1) * 100 + columna, pos, false, true));
+                    mis_butacas.add(new Butaca( columna, pos, true, true));
                 }
             }
             //GENERAR SALAS
@@ -91,6 +91,7 @@ public class Gestor {
      */
     public void menuPrincipal(Asistente asistente) {
         String opcion_login;
+        boolean salir_menu_principal=false;
         do {
             Scanner entrada_1 = new Scanner(System.in);
             System.out.println("# DELECTARE MULTIEVENTOS #");
@@ -114,7 +115,7 @@ public class Gestor {
                     break;
                 case "0":
                     System.out.println("¡Hasta luego!");
-                    break;
+                    System.exit(0);
                 default:
                     System.out.println("Opción inválida. Por favor, selecciona una opción válida.");
 
@@ -166,6 +167,7 @@ public class Gestor {
                 asistente = a;
                 if (a.isEs_admin()) {
                     System.out.println("Bienvenido Administrador de DELECTARE MULTIEVENTOS");
+                    menuPrincipal(asistente);// TODO: 19/02/2024 futuro menu admin
                 } else {
                     System.out.println("Bienvenido " + correo);
                     //porque menu de opciones tiene dentro asistente ? porque trabaja ya con el asistente es decir ya esta logueado.
@@ -250,24 +252,29 @@ public class Gestor {
                         * una vez se comprueba esto, estonces pasamos a lo siguiennrte
                         * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
                         * */
-                        if (Validaciones.validarNumeros(seleccion_evento) && seleccion_evento.length()==1) {
-                            int parseo_seleccion_evento = Integer.parseInt(seleccion_evento);
-                            System.out.println(
-                                    "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento).getNombre() + '\n' +
-                                            "Fecha del evento: " + listado_eventos.get(parseo_seleccion_evento).getFecha() + '\n' +
-                                            "Hora del evento evento: " + listado_eventos.get(parseo_seleccion_evento).getHora() + '\n' +
-                                            "Precio del evento: " + listado_eventos.get(parseo_seleccion_evento).getPrecio() + '\n' +
-                                            "Nobre de la sala: " + listado_eventos.get(parseo_seleccion_evento).getSala().getNombre()
-                            );
-                            // Ahora a selección evento obtiene el nombre del evento
-                            seleccion_evento = listado_eventos.get(parseo_seleccion_evento).getNombre();
-                            //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
-                            evento = devolver_evento(seleccion_evento);
-                            //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
-                            menu_reservas(asistente, evento);
+                        if (Validaciones.validarNumeros(seleccion_evento)) {
+                            BigInteger parseo_seleccion_evento = new BigInteger(seleccion_evento);
+                            if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size())) < 0){
+                                System.out.println(
+                                        "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre() + '\n' +
+                                                "Fecha del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getFecha() + '\n' +
+                                                "Hora del evento evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getHora() + '\n' +
+                                                "Precio del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getPrecio() + '\n' +
+                                                "Nobre de la sala: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getSala().getNombre()
+                                );
+                                // Ahora a selección evento obtiene el nombre del evento
+                                seleccion_evento = listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre();
+                                //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
+                                evento = devolver_evento(seleccion_evento);
+                                //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
+                                menu_reservas(asistente, evento);
+                            }else {
+                                System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
+                                iteración_eventos=false;
+                            }
                         } else {
                             System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
-                            iteración_eventos = false;
+                            iteración_eventos=false;
                         }
                     } while (!iteración_eventos);
                     break;
@@ -404,11 +411,12 @@ public class Gestor {
             System.out.println();
             System.out.print("Selecciona la opcion deseada:");
             opcion_menu_reservas = entrada.nextLine();
+            boolean ocupar_butaca = false;
             switch (opcion_menu_reservas) {
                 case "1":
                     Scanner entrada_2 = new Scanner(System.in);
                     String reserva;
-                    Butaca butaca;
+                    Butaca butaca = null;
                     System.out.println("### Has seleccionado realizar la reserva del evento ###");
                     System.out.println();
                     System.out.println();
@@ -428,10 +436,13 @@ public class Gestor {
                             butaca = evento.getSala().asociar_butaca(reserva);
                             //Ahora al metodo reservar le pasamos el asistente qeu ha hecho la reserva, el evento que ha reservado y la butaca selecciona.
                             reservar(asistente, evento, butaca);
-
+                           
                         }
                     } while (!Validaciones.ComprobarAsientos(reserva, evento));
-                    confirmar_compra(asistente);
+
+                    confirmar_compra(asistente,butaca);
+
+
                     break;
                 case "2":
                     System.out.println("Volver al menu para información de reserva");
@@ -546,7 +557,7 @@ public class Gestor {
         }while (comprobar_opcion);
 
     }
-    public void confirmar_compra( Asistente asistente) {
+    public void confirmar_compra( Asistente asistente, Butaca butaca) {
         String opcion_comprobar_compra;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -560,6 +571,7 @@ public class Gestor {
             opcion_comprobar_compra = entrada.nextLine();
             switch (opcion_comprobar_compra) {
                 case "1":
+                    butaca.setDisponible(false);
                     metodo_pagos(asistente);
                     break;
                 case "2":
@@ -573,6 +585,11 @@ public class Gestor {
 
         } while (!opcion_comprobar_compra.equals("2"));
     }
+
+    // TODO: 19/02/2024
+    //
+    //
+    //  evento.getSala().butaca_ocupada(butaca);
 }
 
 

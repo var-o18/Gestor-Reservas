@@ -1,18 +1,25 @@
+import java.io.*;
+import org.mindrot.jbcrypt.BCrypt;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Gestor {
+    FileOutputStream fos = null, fos_eventos = null, fos_salas = null;
+    ObjectOutputStream oss = null, oss_eventos = null, oss_salas = null;
+    FileInputStream fis = null, fis_eventos =null, fis_salas = null;
+    ObjectInputStream ois = null, ois_eventos=null, ois_salas = null;
+
+    Usuario usuarioactivo;
+    Administrador administradoractivo;
     ArrayList<Evento> listado_eventos = new ArrayList<>();
     Sala listado_salas[] = new Sala[5];
-    ArrayList<Asistente> listado_asistentes = new ArrayList<>();
+    ArrayList<Usuario> listado_usuarios = new ArrayList<>();
     ArrayList<Reserva> listado_reservas = new ArrayList<>();
 
-
-    Gestor() {
-        info_inicial();
-    }
 
     public ArrayList<Evento> getListado_eventos() {
         return listado_eventos;
@@ -22,8 +29,12 @@ public class Gestor {
         return listado_salas;
     }
 
-    public ArrayList<Asistente> getListado_asistentes() {
-        return listado_asistentes;
+    public ArrayList<Usuario> getListado_usuarios() {
+        return listado_usuarios;
+    }
+
+    public void setListado_usuarios(ArrayList<Usuario> listado_usuarios) {
+        this.listado_usuarios = listado_usuarios;
     }
 
     public ArrayList<Reserva> getListado_reservas() {
@@ -38,60 +49,76 @@ public class Gestor {
         this.listado_salas = listado_salas;
     }
 
-    public void setListado_asistentes(ArrayList<Asistente> listado_asistentes) {
-        this.listado_asistentes = listado_asistentes;
-    }
 
     public void setListado_reservas(ArrayList<Reserva> listado_reservas) {
         this.listado_reservas = listado_reservas;
     }
 
-    private void info_inicial() {
-        //CREAR LISTA DE ASISTENTES
-        listado_asistentes.add(new Asistente("admin", "Rodriguez", "admin@email.com", "12345678", true));
-        listado_asistentes.add(new Asistente("yo", "perez", "yo@email.com", "6544411213", "20523207p", LocalDate.of(2005, 06, 28), "12345678"));
-        listado_asistentes.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", "654654654", "12345678z", LocalDate.of(2005, 06, 28), "12345678"));
-        listado_asistentes.add(new Asistente("Pepe", "perez", "pepe@email.com", "6544411213", "12345678z", LocalDate.of(2005, 06, 28), "12345678"));
+    Gestor() {
+        usuarioactivo = null;
+        this.listado_usuarios = new ArrayList<>();
+        try {
+            info_inicial();
+            System.out.println("Vamos a ver los usuarios" );
+            for(Usuario u: listado_usuarios) System.out.println(u.toString());
+        } catch (IOException e) {
+            System.out.println("Problemas de comunicacion con el fichero");
+        }
+    }
 
+    public void info_inicial() throws IOException {
+        //CREAR LISTA DE ASISTENTES
+        /*listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin2@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),2));
+        listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin1@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),1));
+        listado_usuarios.add(new Asistente("yo", "perez", "yo@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "6544411213", LocalDate.of(2005, 06, 28), "20523207p"));
+        listado_usuarios.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
+        listado_usuarios.add(new Asistente("Pepe", "perez", "pepe@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
+        listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin0@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),0));
+        */
+        //AgregarUsuarios();
+        LeerUsuarios();
         /**
          * En este bucle for se iteran salas has 6 y genera un numeor del 1 al 6 a cada sala
          *
          * */
-        int identificador = 0;
-        ArrayList<Butaca> mis_butacas = new ArrayList<>();
+
+
         for (int i = 0; i < 5; i++) {
+            int identificador = 0;
+            ArrayList<Butaca> mis_butacas = new ArrayList<>();
             //GENERAR BUTACAS
             for (char fila = 'A'; fila <= 'F'; fila++) {
                 for (int columna = 1; columna <= 6; columna++) {
                     String pos = fila + "" + columna + "";
                     identificador++;
-                    mis_butacas.add(new Butaca( columna, pos, true, true));
+                    mis_butacas.add(new Butaca(columna, pos, true, true));
                 }
             }
             //GENERAR SALAS
-            listado_salas[i] = new Sala("SALA" + i, 200, mis_butacas, 504.7);
-            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
-            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
-            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
-            listado_salas[i] = new Sala("SALA" + i, 400, mis_butacas, 650.9);
+            listado_salas[i] = (new Sala("SALA" + i, 200, mis_butacas, 504.7));
         }
         //CREAR BUTACA NO DISPONIBLE
 
 
         //CREAR LISTA DE EVENTOS
-        listado_eventos.add(new Evento("Concierto Ñengo", "Ñengo Flow", listado_salas[1], "2024-10-02", "20:00", 30.00, "Reggaeton", 800));
-        listado_eventos.add(new Evento("Rauw Alejandro", "Rauw Alejandro", listado_salas[2], "2024-04-28", "19:00", 20.00, "Reggaeton", 100));
-        listado_eventos.add(new Evento("Bad Gyal", "Bad Gyal", listado_salas[3], "2024-10-12", "22:00", 25.00, "Reggaeton", 300));
-        listado_eventos.add(new Evento("Raphael", "Mi Gran Noche", listado_salas[0], "2024-05-12", "21:00", 60.00, "Pop-Español", 1200));
+        /*listado_eventos.add(new Evento("Concierto Ñengo", "Ñengo Flow", listado_salas[0],LocalDate.of(2005, 06, 28), "20:00", 30.00, "Reggaeton", 800));
+        listado_eventos.add(new Evento("Rauw Alejandro", "Rauw Alejandro", listado_salas[1], LocalDate.of(2005, 06, 28), "19:00", 20.00, "Reggaeton", 100));
+        listado_eventos.add(new Evento("Bad Gyal", "Bad Gyal", listado_salas[2], LocalDate.of(2005, 06, 28), "22:00", 25.00, "Reggaeton", 300));
+        listado_eventos.add(new Evento("Raphael", "Mi Gran Noche", listado_salas[3], LocalDate.of(2005, 06, 28), "21:00", 60.00, "Pop-Español", 1200));
+        */
+        LeerEvento();
+
+
     }
 
     /**
      * Esta funcion esta hecha con el objetivo de dar mas facilidad a la hora de trabajar con los menus siguientes de volver atras y demas
+     *
      * @return devuelve true en caso de que la fecha sea correcta y false en caso contrario, asi tambien devolviendo una nueva introducción de fecha
      */
-    public void menuPrincipal(Asistente asistente) {
+    public void menuPrincipal() throws IOException, HoraInvalidaException {
         String opcion_login;
-        boolean salir_menu_principal=false;
+        boolean salir_menu_principal = false;
         do {
             Scanner entrada_1 = new Scanner(System.in);
             System.out.println("# DELECTARE MULTIEVENTOS #");
@@ -107,7 +134,7 @@ public class Gestor {
             switch (opcion_login) {
                 case "1":
                     System.out.println("Has seleccionado Login.");
-                    login(asistente);
+                    login(usuarioactivo);
                     break;
                 case "2":
                     System.out.println("Has seleccionado Registro.");
@@ -122,12 +149,12 @@ public class Gestor {
             }
         } while (!opcion_login.equals("1") && !opcion_login.equals("2") && !opcion_login.equals("0"));
     }
+
     /**
      * Funcion que es el menu de principal de login, donde aprecen dos ramas una para logearte en caso de tener cuenta en DELECTARE MULTIEVENTOS y si no se relaciona con ninguna cyuenta,
      * te manda a un gestor de seguridad que te pregunta por tu cuenta si quieres volver a logearte o registarte.
-     *
-     * */
-    public void login( Asistente asistente) {
+     */
+    public void login(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -154,29 +181,28 @@ public class Gestor {
                 password = scanner.nextLine();
             } while (password.length() < 8);
         }
-
-        /**
-         * Bucle for para ir recorriendo tanto nombre como pasword, una vez echo pasamo a un doble if que lo que hace
-         * es decir si es admin a traves de la funcion isEs_Admin, si esta a true pasa como admin si no como asistente normal.
-         * */
-        for (Asistente a : listado_asistentes) {
-            if (a.getEmail().equals(correo) && a.getPassword().equals(password)) {
-                /**
-                 * Validacion Es_admin
-                 * **/
-                asistente = a;
-                if (a.isEs_admin()) {
-                    System.out.println("Bienvenido Administrador de DELECTARE MULTIEVENTOS");
-                    menuPrincipal(asistente);// TODO: 19/02/2024 futuro menu admin
-                } else {
-                    System.out.println("Bienvenido " + correo);
-                    //porque menu de opciones tiene dentro asistente ? porque trabaja ya con el asistente es decir ya esta logueado.
-                    menuDeOpciones(asistente);
+        for (Usuario u : listado_usuarios){
+            usuarioactivo = u;
+        if(correo.equals(usuarioactivo.getEmail()) && BCrypt.checkpw(password,usuarioactivo.getPassword())){
+                if (usuarioactivo instanceof Asistente){
+                    menuDeOpciones(usuarioactivo);
+                }else if(usuarioactivo instanceof Administrador) {
+                    menuSuperadminstrador(usuarioactivo);
                 }
 
             }
 
         }
+
+
+
+        /**
+         * Bucle for para ir recorriendo tanto nombre como pasword, una vez echo pasamo a un doble if que lo que hace
+         * es decir si es admin a traves de la funcion isEs_Admin, si esta a true pasa como admin si no como asistente normal.
+         * */
+
+
+
         System.out.println("Usuario Invalido");
         System.out.println("1.Asegurese de haberse registrado en DELECTARE MULTIEVENTOS, si no lo hecho registrese.");
         System.out.println("2.Si esta registrado en DELECTARE MULTIEVENTOS vuelva a logearse.");
@@ -195,7 +221,7 @@ public class Gestor {
             opcion_continuidad = scanner.nextLine();
             switch (opcion_continuidad) {
                 case "1":
-                    login(asistente);
+                    login(usuarioactivo);
                 case "2":
                     nuevoAsistente();
                 default:
@@ -205,16 +231,15 @@ public class Gestor {
 
         } while (!opcion_continuidad.equals("1") && !opcion_continuidad.equals("2"));
 
-
     }
 
     /**
-     * @param asistente, este menu es el principal y ya trabajaria con el asistente ingresado, proporciona las opciones de seleccionar eventos y est asu vez mostaria los
+     * @param usuarioactivo, este menu es el principal y ya trabajaria con el asistente ingresado, proporciona las opciones de seleccionar eventos y est asu vez mostaria los
      * cuenta con la información de eventos de ese usuario y por ultimo la opcion de log of para deslogearse(se desloguea el asistente)
      * */
-    public void menuDeOpciones(Asistente asistente) {
+    public Evento menuDeOpciones(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
         String email;
-        email = asistente.getEmail();
+        email = usuarioactivo.email;
         String opcion_menu;
         Evento evento = new Evento();
         Scanner entrada_2 = new Scanner(System.in);
@@ -232,6 +257,7 @@ public class Gestor {
             switch (opcion_menu) {
                 case "1":
                     boolean iteración_eventos = false;
+
                     //Tenemos un do while que el array de lista de eventos
                     do {
                         String seleccion_evento;
@@ -241,17 +267,17 @@ public class Gestor {
                         y el nombre asociado a este numero
                         * */
                         int i = 0;
-                        for (Evento e : listado_eventos) {
+                        for (Evento e : listado_eventos ) {
                             System.out.println(i + " " + e.getNombre());
                             i++;
                         }
                         System.out.print("Introduzca numero de evento: ");
                         seleccion_evento = entrada_2.nextLine();
                         /*
-                        * Realizamos un comprobacion con un if para comprobar que tod son numeros y que la distancia de lo que se introduce sea 1,
-                        * una vez se comprueba esto, estonces pasamos a lo siguiennrte
-                        * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
-                        * */
+                         * Realizamos un comprobacion con un if para comprobar que tod son numeros y que la distancia de lo que se introduce sea 1,
+                         * una vez se comprueba esto, estonces pasamos a lo siguiennrte
+                         * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
+                         * */
                         if (Validaciones.validarNumeros(seleccion_evento)) {
                             BigInteger parseo_seleccion_evento = new BigInteger(seleccion_evento);
                             if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size())) < 0){
@@ -265,9 +291,9 @@ public class Gestor {
                                 // Ahora a selección evento obtiene el nombre del evento
                                 seleccion_evento = listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre();
                                 //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
-                                evento = devolver_evento(seleccion_evento);
+                                evento = devolver_evento(seleccion_evento, listado_eventos);
                                 //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
-                                menu_reservas(asistente, evento);
+                                menu_reservas(evento, usuarioactivo);
                             }else {
                                 System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
                                 iteración_eventos=false;
@@ -281,26 +307,99 @@ public class Gestor {
                 case "2":
                     System.out.println("Aquí puedes ver la información de tus reservas.");
                     //nos manda al menu reservas mediante el email del asistente, ya que es el unico dato por el momento que tenemos del asistente, ya que lo ingresa por tenclado
-                    mostrar_reservas(email);
+
+                    FileInputStream fis = new FileInputStream("src/data/reservasdef.dat");
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    try {
+
+                        while (true) {
+                            try {
+                                Reserva r = (Reserva) ois.readObject();
+                                // Comprobar si la reserva pertenece al usuario logueado
+                                if (r.usuarioactivo.email.equals(usuarioactivo.getEmail())) {
+                                    listado_reservas.add(r);
+                                }
+                            } catch (EOFException eofx) {
+                                eofx.getMessage();
+                                // Fin del archivo alcanzado
+                                System.out.println("Fichero leído");
+                                break;
+                            }
+                        }
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    // Mostrar las reservas del usuario activo
+                    for (Reserva reserva : listado_reservas) {
+                        reserva.reservas_realizadas();
+                    }
                     break;
                 case "3":
                     System.out.println("¡Hasta luego!");
                     //Esta opcion la he puesto para el casod de que el asistente quiera desloguearse.
-                    menuPrincipal(asistente);
+                    menuPrincipal();
                     break;
                 default:
                     System.out.println("Opción inválida. Por favor, selecciona una opción válida.");
             }
         } while (!opcion_menu.equals("3"));
+        return evento;
     }
+    public void menuSuperadminstrador(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+        Scanner scanner = new Scanner(System.in);
+        String opcion;
+        scanner = new Scanner(System.in);
+        String opcionadmin;
 
+        do {
+
+            System.out.println("1. Gestión de Asistentes");
+            System.out.println("2. Gestión de Eventos");
+            System.out.println("3. Gestión de Reservas");
+            System.out.println("0. Volver");
+            if (((Administrador) usuarioactivo).getPermisos() == 0) {
+                System.out.println("4. Gestión de Administradores");
+            }
+            opcionadmin = scanner.nextLine();
+            switch (opcionadmin) {
+                case "0":
+                        menuPrincipal();
+                case "1":
+
+                    break;
+                case "2":
+                    AñadirEvento();
+                    break;
+                case "3":
+                    break;
+                case "4":
+                    break;
+
+            }
+
+        } while (opcionadmin != "0") ;
+}
+    public static Evento devolver_evento(String nombre, List<Evento> listado_eventos) {
+        for (Evento e : listado_eventos) {
+            if (e.getNombre().equals(nombre)) {
+                return e;
+            }
+        }
+        return null;
+    }
     /**
      * Esta funcion genera un nuevo asistente basicamnete esta es la funcion que aprece cuando pulsamos en registrarns en delecatre multieventos,
      * ponemos los datos que queremos introducir de nuestro nuevo asistente asi como gmail, nombre ...
      * Una vez recogemos estos datos no almacenaos en listado_asistentes .
      *
      * */
-    public Asistente nuevoAsistente() {
+    public Asistente nuevoAsistente() throws IOException, HoraInvalidaException {
         Scanner scaner_menu_nuevo_asistente = new Scanner(System.in);
         String opciones_menu_newasistente;
         do {
@@ -367,21 +466,29 @@ public class Gestor {
                     System.out.println("#~#Ahora vamos a crear tu contraseña#~#");
                     System.out.print("Introduce tu Contraseña: ");
                     String password = scaner_menu_nuevo_asistente.nextLine();
+
                     if (password.length() < 8) {
                         do {
                             System.out.print("Contraseña invalidad, introduzca otra vez la contraseña: ");
                             password = scaner_menu_nuevo_asistente.nextLine();
                         } while (password.length() < 8);
-                    }
-                    listado_asistentes.add(new Asistente(nombre, apellidos, email, telefono, dni, fecha_parseada, password));
 
-                    menuPrincipal(asistente);
+                    }
+                    String password_encriptada  =BCrypt.hashpw(password, BCrypt.gensalt());
+
+                    listado_usuarios.add(new Asistente(nombre, apellidos, email, password_encriptada, telefono, fecha_parseada, dni));
+                    // Agregar el nuevo asistente a la lista
+                    AgregarUsuarios();
+
+
+
+                    menuPrincipal();
                 case "2":
                     System.out.println("Saliendo del programa...");
                     break;
                 case "3":
                     System.out.println("Volviendo a tras...");
-                    menuPrincipal(asistente);
+                    menuPrincipal();
                     break;
                 default:
                     System.out.println("La opcion introducida no es valida!!");
@@ -392,13 +499,12 @@ public class Gestor {
 
         return new Asistente();
     }
+
     /**
-     * @param asistente trabajamos con el objeto asistente, para relacionar la reserva con el asistente en cuestion.
+     * @param usuarioactivo trabajamos con el objeto asistente, para relacionar la reserva con el asistente en cuestion.
      * @param evento trabajamos con objeto evento opara asociar la reserva con el evento en cuestion.
      * */
-    public void menu_reservas(Asistente asistente, Evento evento) {
-        Asistente a = new Asistente();
-        Evento e = new Evento();
+    public void menu_reservas( Evento evento, Usuario usuarioactivo) throws IOException, HoraInvalidaException {
         Scanner entrada = new Scanner(System.in);
 
         String opcion_menu_reservas;
@@ -409,6 +515,7 @@ public class Gestor {
             System.out.println("1. SI");
             System.out.println("2. Atras(Volver al menu anterior)");
             System.out.println();
+            Butaca butaca=null;
             System.out.print("Selecciona la opcion deseada:");
             opcion_menu_reservas = entrada.nextLine();
             boolean ocupar_butaca = false;
@@ -416,7 +523,7 @@ public class Gestor {
                 case "1":
                     Scanner entrada_2 = new Scanner(System.in);
                     String reserva;
-                    Butaca butaca = null;
+                    //Butaca butaca;//no ocupa espacion en memoria, es necesario para ocupar butaca, el problema que tengo es que no ocupa la butaca concreta del evento, si no todas las butacas con la misma cordenada
                     System.out.println("### Has seleccionado realizar la reserva del evento ###");
                     System.out.println();
                     System.out.println();
@@ -425,6 +532,7 @@ public class Gestor {
                         System.out.println("A1, A2, A3 *** A4, A5, A6");
                         System.out.println("B1, B2, B3 *** B4, B5, B6");
                         System.out.println("C1, C2, C3 *** C4, C5, C6");
+                        System.out.println("D1, D2, D3 *** D4, D5, D6");
                         System.out.println("E1, E2, E3 *** E4, E5, E6");
                         System.out.println("F1, F2, F3 *** F4, F5, F6");
                         System.out.println("Escoja el asiento que desee, por favor (fila/numero: ");
@@ -432,22 +540,19 @@ public class Gestor {
                         reserva = reserva.toUpperCase();
                         //Validamos los asientos con von la validación de comprobar asientos en validaciones, mediante reserva-evento
                         if (Validaciones.ComprobarAsientos(reserva, evento)) {
-                            //Ahora lo que hacemos es coger el evento asociados con la sala y asociamso mediante un metodo de la clase sala que asociamos la butaca con la reserva
+                            //Ahora lo que hacemos es coger el evento asociados con la sala y asociamso mediante butaca = null un metodo de la clase sala que asociamos la butaca con la reserva
                             butaca = evento.getSala().asociar_butaca(reserva);
-                            //Ahora al metodo reservar le pasamos el asistente qeu ha hecho la reserva, el evento que ha reservado y la butaca selecciona.
-                            reservar(asistente, evento, butaca);
-                           
+                            confirmar_compra(usuarioactivo,evento, butaca);
+                            //Ahora al metodo reservar le pasamos el asistente qeu ha hecho la reserva, el evento que ha reservado y la butaca selecciona
+                        }else {
+                           menu_reservas( evento, usuarioactivo);
                         }
                     } while (!Validaciones.ComprobarAsientos(reserva, evento));
-
-                    confirmar_compra(asistente,butaca);
-
-
                     break;
                 case "2":
                     System.out.println("Volver al menu para información de reserva");
                     //Metodo de opciones principal, el cual esta traajando con el asistente.
-                    menuDeOpciones(asistente);
+                    menuDeOpciones(usuarioactivo);
                     break;
                 default:
                     System.out.println("¡La opcion introducidad no es correcta!");
@@ -458,17 +563,10 @@ public class Gestor {
 
     }
     /**
-     * @param email trabajamos sobre el email para encontrar la reserva, ya que es el unico dato que tenemos sobre el usuario
+     * @param /// trabajamos sobre el email para encontrar la reserva, ya que es el unico dato que tenemos sobre el usuario
      * realiza un forich para recorrer el array y si coincide despues el gmail con el que hay en el parametro, si coincide se llama al objeto
      *              reservas_realizadas que este se encar de mostrar los datos de la reserva.
      *  **/
-    public void mostrar_reservas(String email) {
-        for (Reserva reser : listado_reservas) {
-            if (reser.getAsistente().getEmail().equals(email)) {
-                reser.reservas_realizadas();
-            }
-        }
-    }
 
 
     public Evento devolver_evento(String nombre) {
@@ -482,23 +580,30 @@ public class Gestor {
     }
 
     /**
-     * @param asistente trabajamos con el asistente que se ha introducido.
+     * @param usuarioactivo trabajamos con el asistente que se ha introducido.
      * @param butaca trabjamos tambien con el parametro butaca para saber que butaca se reserva
      * @param evento trabajamos con el parametro evento para saber de que evento se ha hecho la reserva.
      * */
-    public void reservar(Asistente asistente, Evento evento, Butaca butaca) {
-        for (Asistente asis : listado_asistentes) {
-            if (asis.getNombre().equals(asistente.getNombre()) && asis.getApellidos().equals(asistente.getApellidos()) && asis.getEmail().equals(asistente.getEmail()) && asis.getTelefono().equals(asistente.getTelefono()) && asis.getDni().equals(asistente.getDni()) && asis.getFecha_nacimiento().equals(asistente.getFecha_nacimiento()) && asis.getPassword().equals(asistente.getPassword())) {
-                listado_reservas.add(new Reserva(asistente, evento, butaca, evento.getFecha(), evento.getHora()));
-                evento.getListaAsistentes().add(new Asistente(asistente.getNombre(), asistente.getApellidos(), asistente.getEmail(), asistente.getTelefono(), asistente.getDni(), asistente.getFecha_nacimiento(), asistente.getPassword()));
-                System.out.println("El eveto esta reservado falta, añadir forma de pago "+asistente.getNombre());
+    public void reservar(Usuario usuarioactivo, Evento evento, Butaca butaca) throws IOException {
+        for (Usuario asis : listado_usuarios) {
+            if (asis.nombre.equals(usuarioactivo.getNombre()) && asis.apellido.equals(usuarioactivo.getApellido()) && asis.email.equals(usuarioactivo.getApellido()) && asis.telf.equals(usuarioactivo.getTelf())&& asis.fechaNacimiento.equals(usuarioactivo.getFechaNacimiento()) && asis.password.equals(usuarioactivo.getPassword())) {
+                listado_reservas.add(new Reserva(usuarioactivo, evento, butaca, evento.getFecha(), evento.getHora()));
+                AgregarReserva(listado_reservas);
+                // TODO: 20/02/2024 Falta solucionar problema de reservar la butaca para que no se pueda volver a reservar,
+                //  ya que lo que hace es reservar esa butaca de todas las salas, se encuentra en el metodo confirmar compra.
+                evento.getListaAsistentes().add(new Asistente(usuarioactivo.nombre, usuarioactivo.apellido, usuarioactivo.email, usuarioactivo.telf, ((Asistente)usuarioactivo).getDni(), usuarioactivo.fechaNacimiento, usuarioactivo.password));
+                System.out.println("El eveto esta reservado falta, añadir forma de pago "+usuarioactivo.nombre);
             }
-
 
         }
     }
 
-    public void metodo_pagos(Asistente asistente) {
+ /**
+ * @param usuarioactivo trabajamos con el asistente que se ha introducido.Lo que hacemos es que el asistente hace la reserva es decir ese asistente paga
+ * y trabaja con asistente para mandarlo despues a menu principal.
+ *
+ * **/
+    public void metodo_pagos(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
         //VALIDACIONES DE PAGO
         String opcion_pago;
         String correo_paypal;
@@ -523,13 +628,13 @@ public class Gestor {
                         comprobar_correo_pago = Validaciones.ComprobarCorreo(correo_paypal);
                     } while (!comprobar_correo_pago);
                     System.out.println("Operacion realizada con Paypal");
-                    menuDeOpciones(asistente);
+                    menuDeOpciones(usuarioactivo);
                     comprobar_opcion = false;
                     break;
                 case "2":
                     System.out.println("Vas a proceder a pagar con Bizum:");
                     System.out.println("Realiza un pago al siguiente numero 65441****");
-                    menuDeOpciones(asistente);
+                    menuDeOpciones(usuarioactivo);
                     comprobar_opcion = false;
                     break;
                 case "3":
@@ -542,7 +647,7 @@ public class Gestor {
                         iban = pago.nextLine().toUpperCase().replace(" ", "");
                         comprobar_cuentabancaria = Validaciones.ComprobarIban(iban);
                     } while (!comprobar_cuentabancaria);
-                    menuDeOpciones(asistente);
+                    menuDeOpciones(usuarioactivo);
                     comprobar_opcion = false;
                     break;
                 case "4":
@@ -557,7 +662,11 @@ public class Gestor {
         }while (comprobar_opcion);
 
     }
-    public void confirmar_compra( Asistente asistente, Butaca butaca) {
+    /**
+     * @param usuarioactivo le paso asistente para que trabe con el y sepa que el ese asistente a confirmado la compra
+     *
+     * **/
+    public void confirmar_compra( Usuario usuarioactivo,  Evento evento, Butaca butaca) throws IOException, HoraInvalidaException {
         String opcion_comprobar_compra;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -571,12 +680,13 @@ public class Gestor {
             opcion_comprobar_compra = entrada.nextLine();
             switch (opcion_comprobar_compra) {
                 case "1":
-                    butaca.setDisponible(false);
-                    metodo_pagos(asistente);
+                    butaca = evento.getSala().ocuparButaca(butaca);
+                    reservar(usuarioactivo, evento, butaca);
+                    metodo_pagos(usuarioactivo);
                     break;
                 case "2":
                     System.out.println("Saliendo de la reservar del evento");
-                    menuDeOpciones(asistente);
+                    menuDeOpciones(usuarioactivo);
                     break;
                 default:
                     System.out.println("La opcion introducida no es correctar vuelva a intentarlo: ");
@@ -585,11 +695,238 @@ public class Gestor {
 
         } while (!opcion_comprobar_compra.equals("2"));
     }
+    public  Evento AñadirEvento() throws IOException, InputMismatchException {
+        Scanner scaner_menu_nuevo_evento = new Scanner(System.in);
+        String opciones_menu_newevento;
+        Sala sala;
+        int numero_sala = 0;
+        boolean atributocontrol = false;
+        boolean preciocorrecto = false;
+        boolean numeroasistentescorrecto=false;
+        String fecha_evento;
+        int numeroAsistentesmaximo = 0;
+        boolean salacorrecta = false;
+        double precio_evento = 0.0;
+        do {
+            Asistente asistente = new Asistente();
+            System.out.println("GESTION DE EVENTOS");
+            System.out.println();
+            System.out.println("1. Agregar Evento");
+            System.out.println("2. Modificar Evento");
+            System.out.println("3. Eliminar Evento");
+            System.out.println("4. Mostrar Evento");
+            System.out.println("5. Listar Evntos");
+            System.out.println("0. Listar Evntos");
+            System.out.println();
+            System.out.print("Introduce la opcion deseada: ");
+            opciones_menu_newevento = scaner_menu_nuevo_evento.nextLine();
 
-    // TODO: 19/02/2024
-    //
-    //
-    //  evento.getSala().butaca_ocupada(butaca);
+            switch (opciones_menu_newevento) {
+                case "1":
+                    System.out.print("Introduce Nombre del Evento: ");
+                    String nombre = scaner_menu_nuevo_evento.nextLine();
+                    if (!Validaciones.ComprobarNombreApellidos(nombre)) {
+                        do {
+                            nombre = scaner_menu_nuevo_evento.nextLine();
+                        } while (!Validaciones.ComprobarNombreApellidos(nombre));
+                    }
+                    System.out.print("Introduce Nombre del Invitado: ");
+                    String invitado = scaner_menu_nuevo_evento.nextLine();
+                    if (!Validaciones.ComprobarNombreApellidos(invitado)) {
+                        do {
+                            invitado = scaner_menu_nuevo_evento.nextLine();
+                        } while (!Validaciones.ComprobarNombreApellidos(invitado));
+                    }
+                    int i = 0;
+                    for (Sala s : listado_salas ) {
+                        System.out.println(i + " " + s.getNombre());
+                        i++;
+                    }
+                    while (!salacorrecta) {
+                        try {
+                            System.out.println("Seleccione el numero de la sala (1-5): ");
+                            numero_sala =scaner_menu_nuevo_evento.nextInt();
+                            scaner_menu_nuevo_evento.nextLine();
+                            //COMPROBAR QUE LA SALA EXISTE
+                            if (numero_sala > 0 &&  numero_sala <= listado_salas.length){
+                                salacorrecta = true;
+                            }
+
+                        } catch (InputMismatchException ex) {
+                            System.out.println("No has introducido ningun numero, introduce el numero de la sala: ");
+                            scaner_menu_nuevo_evento.nextLine();
+                        }
+                    }
+                    sala = listado_salas[numero_sala];
+
+
+                    System.out.print("Por favor, ingrese su fecha del evento (DD-MM-YYYY): ");
+                     fecha_evento = scaner_menu_nuevo_evento.nextLine();
+                    if (!Validaciones.ValidarFechaEvento(fecha_evento)) {
+                        do {
+                            fecha_evento = scaner_menu_nuevo_evento.nextLine();
+                        } while (!Validaciones.ValidarFechaEvento(fecha_evento));
+                    }
+                    System.out.print("Introduce Hora del Evento: ");
+                    String hora_evento = scaner_menu_nuevo_evento.nextLine();
+                    if (!Validaciones.ValidarHora(hora_evento)) {
+                        do {
+                            hora_evento = scaner_menu_nuevo_evento.nextLine();
+                        } while (!Validaciones.ValidarHora(hora_evento));
+                    }
+                    while (!preciocorrecto){
+                        try {
+                            System.out.print("Introduce Precio del Evento: ");
+                             precio_evento = scaner_menu_nuevo_evento.nextDouble();
+                            preciocorrecto = true;
+                            scaner_menu_nuevo_evento.nextLine();
+                        } catch (InputMismatchException e) {
+                            scaner_menu_nuevo_evento.nextLine();//volvemos a mostrar el
+                        }
+                    }
+
+                    System.out.print("Introduce el Tipo del Evento: ");
+                    String tipoEvento= scaner_menu_nuevo_evento.nextLine();
+                    if (!Validaciones.ComprobarNombreApellidos(tipoEvento)) {
+                        do {
+                            tipoEvento = scaner_menu_nuevo_evento.nextLine();
+                        } while (!Validaciones.ComprobarNombreApellidos(tipoEvento));
+                    }
+
+                    while (!numeroasistentescorrecto){
+                        try {
+                            System.out.print("Introduce Numero maximo asistentes: ");
+                            numeroAsistentesmaximo = scaner_menu_nuevo_evento.nextInt();
+                            numeroasistentescorrecto = true;
+                        } catch (InputMismatchException e) {
+                            scaner_menu_nuevo_evento.nextLine();//volvemos a mostrar el
+                        }
+                    }
+                    LocalDate fecha_parseada = Validaciones.fechaParseada(fecha_evento);
+                    listado_eventos.add(new Evento(nombre,invitado,sala,fecha_parseada,hora_evento,precio_evento,tipoEvento,numeroAsistentesmaximo));
+                    AgregarEvento();
+                    System.out.println("Evento añadido con exito");
+                    break;
+                case "2":
+                    System.out.println("Modificar Evento");
+                    break;
+                case "3":
+                    System.out.println("Eliminar Evento");
+                    break;
+                case "4":
+                    System.out.println("Mostrar Evento");
+                    break;
+                case "5":
+                    System.out.println("Listado de Eventos");
+                    break;
+                default:
+                    System.out.println("Vuelva a introducir la opcion: ");
+            }
+
+        } while (!opciones_menu_newevento.equals("0"));
+
+        return new Evento();
+
+
+    }
+
+    public void AgregarUsuarios() throws IOException {
+        try{
+            fos=new FileOutputStream("src/data/usuariosdefinitivos.dat");
+            oss=new ObjectOutputStream(fos);
+            for (Usuario u: listado_usuarios){
+                oss.writeObject(u);
+
+            }
+
+        }catch (FileNotFoundException ex){
+
+        }finally {
+            fos.close();
+        }
+    }
+    public void LeerUsuarios() throws IOException{
+        FileInputStream fis = new FileInputStream("src/Data/usuariosdefinitivos.dat");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        try{
+            while (true) {
+                try {
+                    Usuario u = (Usuario) ois.readObject();
+                    listado_usuarios.add(u);
+                } catch (EOFException eofx) {
+                    break;
+                }
+            }
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }finally {
+            ois.close();
+            fis.close();
+        }
+
+    }
+    public void AgregarEvento() throws IOException {
+        try{
+            fos=new FileOutputStream("src/data/listadoeventos.dat");
+            oss=new ObjectOutputStream(fos);
+            for (Evento e: listado_eventos){
+                oss.writeObject(e);
+
+            }
+
+        }catch (FileNotFoundException ex){
+
+        }finally {
+            fos.close();
+        }
+    }
+
+    public void LeerEvento() throws IOException {
+        fis_eventos = new FileInputStream("src/data/listadoeventos.dat");
+        ois_eventos = new ObjectInputStream(fis_eventos);
+        try{
+            while (true) {
+
+                try {
+                    Evento e = (Evento) ois_eventos.readObject();
+                    listado_eventos.add(e);
+                } catch (EOFException eofx) {
+                    System.out.println("Fichero leído");
+                    break;
+                }
+            }
+            ois_eventos.close();
+            fis_eventos.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void AgregarReserva(List<Reserva> listado_reservas) throws IOException {
+        FileOutputStream fos = new FileOutputStream("src/data/reservasdef.dat");
+        ObjectOutputStream oss = new ObjectOutputStream(fos);
+        try{
+            for (Reserva r : listado_reservas) {
+                oss.writeObject(r);
+            }
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
 
 

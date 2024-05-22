@@ -1,8 +1,10 @@
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
-public class Reserva {
+public class Reserva implements Serializable {
     private String id;
+    Usuario usuarioactivo;
     private Asistente asistente;
     private Evento evento;
     private Butaca butaca;
@@ -10,14 +12,22 @@ public class Reserva {
     private String hora;
     private String token;
 
-    public Reserva(Asistente asistente, Evento evento, Butaca butaca, LocalDate fecha, String hora) {
-        this.id = id;
+    public Reserva(Usuario usuarioactivo, Evento evento, Butaca butaca, LocalDate fecha, String hora) {
+        this.usuarioactivo=usuarioactivo;
         this.asistente = asistente;
         this.evento = evento;
         this.butaca = butaca;
         this.fecha = fecha;
         this.hora = hora;
         this.id = Validaciones.RealizaTocken();
+    }
+
+    public Usuario getUsuarioactivo() {
+        return usuarioactivo;
+    }
+
+    public void setUsuarioactivo(Usuario usuarioactivo) {
+        this.usuarioactivo = usuarioactivo;
     }
 
     public String getId() {
@@ -78,13 +88,11 @@ public class Reserva {
 
     public void reservas_realizadas(){
         System.out.println("Id reserva: "+id);
-        System.out.println("Asistente: "+asistente.getNombre());
+        System.out.println("Asistente: "+usuarioactivo.getNombre());
         System.out.println("Evento: "+evento.getNombre());
         System.out.println("Butaca: "+butaca.getCordenada());
         System.out.println("Fecha: "+evento.getFecha());
         System.out.println("Hora: "+evento.getHora());
+        System.out.println("Sala: "+evento.getSala().getNombre());
     }
-    // TODO: 15/01/2024 comprobarDisponibilidad "metodo"
-    // TODO: 15/01/2024 reservarPlaza "metodo"
-    // TODO: 15/01/2024 generarToken "metodo"
 }

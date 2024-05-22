@@ -1,11 +1,13 @@
-public class Butaca {
+import java.io.Serializable;
+
+public class Butaca  implements Serializable {
     int id;
     String cordenada;
-    private Boolean accesibilidad;
-    private Boolean disponible = true;
+    private boolean accesibilidad;
+    private boolean disponible;
 
     Butaca(){}
-    Butaca(int id,String cordenada,Boolean accesibilidad, Boolean disponible) {
+    Butaca(int id,String cordenada,boolean accesibilidad, boolean disponible) {
         this.id = id;
         this.accesibilidad = accesibilidad;
         this.disponible = disponible;
@@ -28,7 +30,7 @@ public class Butaca {
         this.cordenada = cordenada;
     }
 
-    public Boolean getAccesibilidad() {
+    public boolean getAccesibilidad() {
         return accesibilidad;
     }
 
@@ -36,11 +38,11 @@ public class Butaca {
         this.accesibilidad = accesibilidad;
     }
 
-    public Boolean getDisponible() {
+    public boolean getDisponible() {
         return disponible;
     }
 
-    public void setDisponible(Boolean disponible) {
+    public void setDisponible(boolean disponible) {
         this.disponible = disponible;
     }
 
@@ -55,16 +57,7 @@ public class Butaca {
 
     /**
      * Metodo que permite comprobar la disponibilidad de las butacas
-    */
-    public boolean ocuparButaca(){
-        if (disponible){
-            disponible=false;
-            System.out.println("La butaca "+id+" ha sido ocupada");
-        }else {
-            System.out.println("La butaca "+id+" ya esta ocupada");
-        }
-        return false;
-    }
+     */
     public boolean desocuparButaca(){
         if (!disponible){
             disponible=true;

@@ -1,9 +1,9 @@
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 
-public class Evento {
+public class Evento implements Serializable {
+    private static final long serialVersionUID = -8246917267015747919L;
     private String nombre;
     private String invitado;
     private Sala sala;
@@ -16,11 +16,22 @@ public class Evento {
 
 
     public Evento(){}
-    public Evento(String nombre, String invitado, Sala sala, String fecha, String hora, double precio, String tipoEvento, int numeroAsistentesmaximo) {
+
+    public Evento(String nombre, String invitado, LocalDate fecha, String hora, double precio, String tipoEvento, int numeroAsistentesmaximo) {
+        this.nombre = nombre;
+        this.invitado = invitado;
+        this.fecha = fecha;
+        this.hora = hora;
+        this.precio = precio;
+        this.tipoEvento = tipoEvento;
+        this.numeroAsistentesmaximo = numeroAsistentesmaximo;
+    }
+
+    public Evento(String nombre, String invitado, Sala sala, LocalDate fecha, String hora, double precio, String tipoEvento, int numeroAsistentesmaximo) {
         this.nombre = nombre;
         this.invitado = invitado;
         this.sala = sala;
-        this.fecha = LocalDate.parse(fecha);
+        this.fecha = fecha;
         this.hora = hora;
         this.precio = precio;
         this.tipoEvento = tipoEvento;
@@ -98,6 +109,27 @@ public class Evento {
 
     public void setNumeoroAsistentesmaximo(int numeoroAsistentesmaximo) {
         this.numeroAsistentesmaximo = numeoroAsistentesmaximo;
+    }
+    public void mostrarEvento(){
+        System.out.println("Nombre Evento: "+nombre);
+        System.out.println("Hora: "+hora);
+        System.out.println("Fecha: "+fecha);
+        System.out.println("Precio: "+precio);
+    }
+
+    @Override
+    public String toString() {
+        return "Evento{" +
+                "nombre='" + nombre + '\'' +
+                ", invitado='" + invitado + '\'' +
+                ", sala=" + sala +
+                ", fecha=" + fecha +
+                ", hora='" + hora + '\'' +
+                ", precio=" + precio +
+                ", tipoEvento='" + tipoEvento + '\'' +
+                ", numeroAsistentesmaximo=" + numeroAsistentesmaximo +
+                ", listaAsistentes=" + listaAsistentes +
+                '}';
     }
 }
 

@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Sala {
+public class Sala implements Serializable {
     public String nombre;
     public int cpacidad_maxima;
 
@@ -96,6 +97,17 @@ public class Sala {
             }
         }
         return butaca_asociada;
+    }
+
+    public Butaca ocuparButaca(Butaca butaca) {
+
+        if (butaca.getDisponible()) {
+             butaca.setDisponible(false);
+            System.out.println("La butaca " +  butaca.id+ " ha sido ocupada");
+        } else {
+            System.out.println("La butaca " + butaca.id + " ya esta ocupada");
+        }
+        return butaca;
     }
 
 }

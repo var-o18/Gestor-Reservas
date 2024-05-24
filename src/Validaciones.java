@@ -39,19 +39,19 @@ public class Validaciones {
 
     }
 
-    public static boolean validarNumeros(String texto) {
+    public static boolean validarNumeros(String texto) throws NumberFormatException {
         /**
          * Verificamos si la cadena se encuentra a null es decir vacia o la cadena esta a null
          */
         if (texto == null || texto.isEmpty()) {
-            return false;
+            throw new NumberFormatException("Lo que ha introducido esta a null o esta vacia");
 
         }
 
         for (int i = 0; i < texto.length(); i++) {
             char caracter = texto.charAt(i);
             if (caracter < '0' || caracter > '9') {
-                return false;
+               throw new NumberFormatException("Lo que ha introducido contiene caracteres no validos");
             }
         }
 

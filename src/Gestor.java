@@ -1,4 +1,6 @@
 import java.io.*;
+
+import excepciones.EmailExsistenteException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -67,15 +69,15 @@ public class Gestor {
     }
 
     public void info_inicial() throws IOException {
-        //CREAR LISTA DE ASISTENTES
-        /*listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin2@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),2));
-        listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin1@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),1));
-        listado_usuarios.add(new Asistente("yo", "perez", "yo@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "6544411213", LocalDate.of(2005, 06, 28), "20523207p"));
-        listado_usuarios.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
-        listado_usuarios.add(new Asistente("Pepe", "perez", "pepe@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
-        listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin0@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),0));
-        */
-        //AgregarUsuarios();
+        /*CREAR LISTA DE ASISTENTES
+                /*listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin2@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),2));
+                listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin1@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),1));
+                listado_usuarios.add(new Asistente("yo", "perez", "yo@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "6544411213", LocalDate.of(2005, 06, 28), "20523207p"));
+               listado_usuarios.add(new Asistente("Mari", "Carmen", "maricarmen@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
+               listado_usuarios.add(new Asistente("Pepe", "perez", "pepe@email.com", BCrypt.hashpw("12345678",BCrypt.gensalt()), "654411213", LocalDate.of(2005, 06, 28), "20523207p"));
+                listado_usuarios.add(new Administrador("admin", "Rodriguez", "admin0@email.com",BCrypt.hashpw("12345678",BCrypt.gensalt()),"654411213",LocalDate.of(2005, 06, 28),0));
+               */
+              //AgregarUsuarios();
         LeerUsuarios();
         /**
          * En este bucle for se iteran salas has 6 y genera un numeor del 1 al 6 a cada sala
@@ -107,6 +109,7 @@ public class Gestor {
         listado_eventos.add(new Evento("Raphael", "Mi Gran Noche", listado_salas[3], LocalDate.of(2005, 06, 28), "21:00", 60.00, "Pop-Español", 1200));
         */
         LeerEvento();
+        LeerReservas();
 
 
     }
@@ -116,7 +119,7 @@ public class Gestor {
      *
      * @return devuelve true en caso de que la fecha sea correcta y false en caso contrario, asi tambien devolviendo una nueva introducción de fecha
      */
-    public void menuPrincipal() throws IOException, HoraInvalidaException {
+    public void menuPrincipal() throws IOException, EmailExsistenteException {
         String opcion_login;
         boolean salir_menu_principal = false;
         do {
@@ -154,7 +157,7 @@ public class Gestor {
      * Funcion que es el menu de principal de login, donde aprecen dos ramas una para logearte en caso de tener cuenta en DELECTARE MULTIEVENTOS y si no se relaciona con ninguna cyuenta,
      * te manda a un gestor de seguridad que te pregunta por tu cuenta si quieres volver a logearte o registarte.
      */
-    public void login(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+    public void login(Usuario usuarioactivo) throws IOException,EmailExsistenteException {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -181,18 +184,22 @@ public class Gestor {
                 password = scanner.nextLine();
             } while (password.length() < 8);
         }
+
         for (Usuario u : listado_usuarios){
-            usuarioactivo = u;
-        if(correo.equals(usuarioactivo.getEmail()) && BCrypt.checkpw(password,usuarioactivo.getPassword())){
-                if (usuarioactivo instanceof Asistente){
-                    menuDeOpciones(usuarioactivo);
-                }else if(usuarioactivo instanceof Administrador) {
-                    menuSuperadminstrador(usuarioactivo);
+                usuarioactivo = u;
+                if(correo.equals(usuarioactivo.getEmail()) && BCrypt.checkpw(password,usuarioactivo.getPassword())){
+                    if (usuarioactivo instanceof Asistente){
+                        menuDeOpciones(usuarioactivo);
+                    }else if(usuarioactivo instanceof Administrador) {
+                        menuSuperadminstrador(usuarioactivo);
+                    }
+
+
                 }
 
             }
 
-        }
+
 
 
 
@@ -237,7 +244,7 @@ public class Gestor {
      * @param usuarioactivo, este menu es el principal y ya trabajaria con el asistente ingresado, proporciona las opciones de seleccionar eventos y est asu vez mostaria los
      * cuenta con la información de eventos de ese usuario y por ultimo la opcion de log of para deslogearse(se desloguea el asistente)
      * */
-    public Evento menuDeOpciones(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+    public Evento menuDeOpciones(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
         String email;
         email = usuarioactivo.email;
         String opcion_menu;
@@ -257,7 +264,7 @@ public class Gestor {
             switch (opcion_menu) {
                 case "1":
                     boolean iteración_eventos = false;
-
+                    boolean seleccion_evento_ok = false;
                     //Tenemos un do while que el array de lista de eventos
                     do {
                         String seleccion_evento;
@@ -271,79 +278,66 @@ public class Gestor {
                             System.out.println(i + " " + e.getNombre());
                             i++;
                         }
-                        System.out.print("Introduzca numero de evento: ");
-                        seleccion_evento = entrada_2.nextLine();
-                        /*
-                         * Realizamos un comprobacion con un if para comprobar que tod son numeros y que la distancia de lo que se introduce sea 1,
-                         * una vez se comprueba esto, estonces pasamos a lo siguiennrte
-                         * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
-                         * */
-                        if (Validaciones.validarNumeros(seleccion_evento)) {
-                            BigInteger parseo_seleccion_evento = new BigInteger(seleccion_evento);
-                            if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size())) < 0){
-                                System.out.println(
-                                        "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre() + '\n' +
-                                                "Fecha del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getFecha() + '\n' +
-                                                "Hora del evento evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getHora() + '\n' +
-                                                "Precio del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getPrecio() + '\n' +
-                                                "Nobre de la sala: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getSala().getNombre()
-                                );
-                                // Ahora a selección evento obtiene el nombre del evento
-                                seleccion_evento = listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre();
-                                //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
-                                evento = devolver_evento(seleccion_evento, listado_eventos);
-                                //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
-                                menu_reservas(evento, usuarioactivo);
-                            }else {
-                                System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
+                        while (!seleccion_evento_ok) {
+                            try {
+                                System.out.print("Introduzca numero de evento: ");
+                                seleccion_evento = entrada_2.nextLine();
+                                /*
+                                 * Realizamos un comprobacion con un if para comprobar que tod son numeros y que la distancia de lo que se introduce sea 1,
+                                 * una vez se comprueba esto, estonces pasamos a lo siguiennrte
+                                 * que se realiza un parseo de string a int , porque estamso trabajando en int para encontar el nombre, fecha, evento ...
+                                 * */
+
+                                if (Validaciones.validarNumeros(seleccion_evento)) {
+                                    seleccion_evento_ok=true;
+                                    BigInteger parseo_seleccion_evento = new BigInteger(seleccion_evento);
+                                    if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size())) < 0){
+                                        System.out.println(
+                                                "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre() + '\n' +
+                                                        "Fecha del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getFecha() + '\n' +
+                                                        "Hora del evento evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getHora() + '\n' +
+                                                        "Precio del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getPrecio() + '\n' +
+                                                        "Nobre de la sala: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getSala().getNombre()
+                                        );
+                                        // Ahora a selección evento obtiene el nombre del evento
+                                        seleccion_evento = listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre();
+                                        //mediante la funcion que nos devuelve el evento le pasamos el nombre de este evento en concreto
+                                        evento = devolver_evento(seleccion_evento, listado_eventos);
+                                        //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
+                                        menu_reservas(evento, usuarioactivo);
+                                    }else {
+                                        System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
+                                        iteración_eventos=false;
+                                    }
+                                } else {
+                                    System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
+                                    iteración_eventos=false;
+                                }
+                            }catch(NumberFormatException e){
+                                System.out.println("Numero de evento incorrecto");
                                 iteración_eventos=false;
                             }
-                        } else {
-                            System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
-                            iteración_eventos=false;
                         }
+
+
+
                     } while (!iteración_eventos);
                     break;
                 case "2":
                     System.out.println("Aquí puedes ver la información de tus reservas.");
                     //nos manda al menu reservas mediante el email del asistente, ya que es el unico dato por el momento que tenemos del asistente, ya que lo ingresa por tenclado
 
-                    FileInputStream fis = new FileInputStream("src/data/reservasdef.dat");
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-                    try {
-
-                        while (true) {
-                            try {
-                                Reserva r = (Reserva) ois.readObject();
-                                // Comprobar si la reserva pertenece al usuario logueado
-                                if (r.usuarioactivo.email.equals(usuarioactivo.getEmail())) {
-                                    listado_reservas.add(r);
-                                }
-                            } catch (EOFException eofx) {
-                                eofx.getMessage();
-                                // Fin del archivo alcanzado
-                                System.out.println("Fichero leído");
-                                break;
-                            }
-                        }
-
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                    // Mostrar las reservas del usuario activo
                     for (Reserva reserva : listado_reservas) {
-                        reserva.reservas_realizadas();
+                        if (reserva.getUsuarioactivo().getEmail().equals(usuarioactivo.getEmail())) {
+                            reserva.reservas_realizadas();
+                        }
                     }
                     break;
                 case "3":
                     System.out.println("¡Hasta luego!");
                     //Esta opcion la he puesto para el casod de que el asistente quiera desloguearse.
                     menuPrincipal();
+                    System.exit(1);
                     break;
                 default:
                     System.out.println("Opción inválida. Por favor, selecciona una opción válida.");
@@ -351,35 +345,37 @@ public class Gestor {
         } while (!opcion_menu.equals("3"));
         return evento;
     }
-    public void menuSuperadminstrador(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+    public void menuSuperadminstrador(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
         Scanner scanner = new Scanner(System.in);
         String opcion;
         scanner = new Scanner(System.in);
         String opcionadmin;
 
         do {
-
-            System.out.println("1. Gestión de Asistentes");
-            System.out.println("2. Gestión de Eventos");
-            System.out.println("3. Gestión de Reservas");
-            System.out.println("0. Volver");
-            if (((Administrador) usuarioactivo).getPermisos() == 0) {
-                System.out.println("4. Gestión de Administradores");
-            }
+            System.out.println("  #### Bienvendio a la Administración de DELECTARE ###");
+            System.out.println();
+            System.out.println("             1. Gestión de Asistentes                 ");
+            System.out.println("             2. Gestión de Eventos                    ");
+            System.out.println("             3. Gestión de Reservas                   ");
+            System.out.println("             0. Desloguearse                          ");
+            System.out.println();
+            System.out.print("Introduce la opcion que desea: ");
             opcionadmin = scanner.nextLine();
             switch (opcionadmin) {
                 case "0":
-                        menuPrincipal();
+                    menuPrincipal();
                 case "1":
-
+                    GestorAsistente();
                     break;
                 case "2":
-                    AñadirEvento();
+                    GestionarEvento();
                     break;
                 case "3":
+                    GestorReservas();
                     break;
-                case "4":
-                    break;
+                default:
+                    System.out.println("La opcion que has introducido, no es correcta, vuelva a introducir una opción: ");
+
 
             }
 
@@ -399,7 +395,7 @@ public class Gestor {
      * Una vez recogemos estos datos no almacenaos en listado_asistentes .
      *
      * */
-    public Asistente nuevoAsistente() throws IOException, HoraInvalidaException {
+    public Asistente nuevoAsistente() throws IOException, EmailExsistenteException {
         Scanner scaner_menu_nuevo_asistente = new Scanner(System.in);
         String opciones_menu_newasistente;
         do {
@@ -418,11 +414,34 @@ public class Gestor {
                     System.out.println("Rellena el siguiente formulario:");
                     System.out.println();
                     String email = "";
-                    System.out.print("Introduce Email: ");
-                    do {
-                        email = scaner_menu_nuevo_asistente.nextLine();
-                    } while (!Validaciones.ComprobarCorreo(email));
+                        try {
+                            do {
+                            boolean emailexistente = false;
+                            System.out.print("Introduce Email: ");
+                            email = scaner_menu_nuevo_asistente.nextLine();
+                            for (Usuario usuario : listado_usuarios) {
+                                if (usuario instanceof Asistente) {
+                                    if (email.equals(usuario.getEmail())) {
+                                        throw new  EmailExsistenteException();
+                                    }
+                                }
+                            }
+                            if (!Validaciones.ComprobarCorreo(email)) {
+                                System.out.println("Email introducido contiene caracteres invalidos:");
+                            }
+                            } while (!Validaciones.ComprobarCorreo(email));
+                        }catch (EmailExsistenteException e){
+                            System.out.println(e.getMessage());
+                            nuevoAsistente();
+                        }
 
+                    System.out.print("Introduce DNI: ");
+                    String dni = scaner_menu_nuevo_asistente.nextLine();
+                    if (!Validaciones.ComprobarDNI(dni)) {
+                        do {
+                            dni = scaner_menu_nuevo_asistente.nextLine();
+                        } while (!Validaciones.ComprobarDNI(dni));
+                    }
                     System.out.print("Introduce Nombre: ");
                     String nombre = scaner_menu_nuevo_asistente.nextLine();
                     if (!Validaciones.ComprobarNombreApellidos(nombre)) {
@@ -443,13 +462,6 @@ public class Gestor {
                         do {
                             telefono = scaner_menu_nuevo_asistente.nextLine();
                         } while (!Validaciones.ComprobarTelefono(telefono));
-                    }
-                    System.out.print("Introduce DNI: ");
-                    String dni = scaner_menu_nuevo_asistente.nextLine();
-                    if (!Validaciones.ComprobarDNI(dni)) {
-                        do {
-                            dni = scaner_menu_nuevo_asistente.nextLine();
-                        } while (!Validaciones.ComprobarDNI(dni));
                     }
                     System.out.print("Por favor, ingrese su fecha de nacimiento (DD-MM-YYYY): ");
                     String fecha_nacimiento = scaner_menu_nuevo_asistente.nextLine();
@@ -504,7 +516,7 @@ public class Gestor {
      * @param usuarioactivo trabajamos con el objeto asistente, para relacionar la reserva con el asistente en cuestion.
      * @param evento trabajamos con objeto evento opara asociar la reserva con el evento en cuestion.
      * */
-    public void menu_reservas( Evento evento, Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+    public void menu_reservas( Evento evento, Usuario usuarioactivo) throws IOException, EmailExsistenteException {
         Scanner entrada = new Scanner(System.in);
 
         String opcion_menu_reservas;
@@ -545,7 +557,7 @@ public class Gestor {
                             confirmar_compra(usuarioactivo,evento, butaca);
                             //Ahora al metodo reservar le pasamos el asistente qeu ha hecho la reserva, el evento que ha reservado y la butaca selecciona
                         }else {
-                           menu_reservas( evento, usuarioactivo);
+                           menu_reservas(evento, usuarioactivo);
                         }
                     } while (!Validaciones.ComprobarAsientos(reserva, evento));
                     break;
@@ -586,12 +598,14 @@ public class Gestor {
      * */
     public void reservar(Usuario usuarioactivo, Evento evento, Butaca butaca) throws IOException {
         for (Usuario asis : listado_usuarios) {
-            if (asis.nombre.equals(usuarioactivo.getNombre()) && asis.apellido.equals(usuarioactivo.getApellido()) && asis.email.equals(usuarioactivo.getApellido()) && asis.telf.equals(usuarioactivo.getTelf())&& asis.fechaNacimiento.equals(usuarioactivo.getFechaNacimiento()) && asis.password.equals(usuarioactivo.getPassword())) {
+            if (asis.nombre.equals(usuarioactivo.getNombre()) && asis.apellido.equals(usuarioactivo.getApellido()) && asis.email.equals(usuarioactivo.getEmail()
+            ) && asis.telf.equals(usuarioactivo.getTelf()) && asis.password.equals(usuarioactivo.getPassword())) {
                 listado_reservas.add(new Reserva(usuarioactivo, evento, butaca, evento.getFecha(), evento.getHora()));
                 AgregarReserva(listado_reservas);
                 // TODO: 20/02/2024 Falta solucionar problema de reservar la butaca para que no se pueda volver a reservar,
                 //  ya que lo que hace es reservar esa butaca de todas las salas, se encuentra en el metodo confirmar compra.
-                evento.getListaAsistentes().add(new Asistente(usuarioactivo.nombre, usuarioactivo.apellido, usuarioactivo.email, usuarioactivo.telf, ((Asistente)usuarioactivo).getDni(), usuarioactivo.fechaNacimiento, usuarioactivo.password));
+                evento.getListaAsistentes().add(new Asistente(usuarioactivo.nombre, usuarioactivo.apellido, usuarioactivo.email, usuarioactivo.telf,
+                        ((Asistente)usuarioactivo).getDni(), usuarioactivo.fechaNacimiento, usuarioactivo.password));
                 System.out.println("El eveto esta reservado falta, añadir forma de pago "+usuarioactivo.nombre);
             }
 
@@ -603,7 +617,7 @@ public class Gestor {
  * y trabaja con asistente para mandarlo despues a menu principal.
  *
  * **/
-    public void metodo_pagos(Usuario usuarioactivo) throws IOException, HoraInvalidaException {
+    public void metodo_pagos(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
         //VALIDACIONES DE PAGO
         String opcion_pago;
         String correo_paypal;
@@ -666,7 +680,7 @@ public class Gestor {
      * @param usuarioactivo le paso asistente para que trabe con el y sepa que el ese asistente a confirmado la compra
      *
      * **/
-    public void confirmar_compra( Usuario usuarioactivo,  Evento evento, Butaca butaca) throws IOException, HoraInvalidaException {
+    public void confirmar_compra( Usuario usuarioactivo,  Evento evento, Butaca butaca) throws IOException, EmailExsistenteException {
         String opcion_comprobar_compra;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -695,7 +709,7 @@ public class Gestor {
 
         } while (!opcion_comprobar_compra.equals("2"));
     }
-    public  Evento AñadirEvento() throws IOException, InputMismatchException {
+    public  Evento GestionarEvento() throws IOException, InputMismatchException, EmailExsistenteException {
         Scanner scaner_menu_nuevo_evento = new Scanner(System.in);
         String opciones_menu_newevento;
         Sala sala;
@@ -708,15 +722,15 @@ public class Gestor {
         boolean salacorrecta = false;
         double precio_evento = 0.0;
         do {
-            Asistente asistente = new Asistente();
             System.out.println("GESTION DE EVENTOS");
             System.out.println();
             System.out.println("1. Agregar Evento");
             System.out.println("2. Modificar Evento");
             System.out.println("3. Eliminar Evento");
             System.out.println("4. Mostrar Evento");
-            System.out.println("5. Listar Evntos");
-            System.out.println("0. Listar Evntos");
+            System.out.println("5. Listar Eventos");
+            System.out.println("6. Listar un unico Evento");
+            System.out.println("0. Salir al gestor de Administrador");
             System.out.println();
             System.out.print("Introduce la opcion deseada: ");
             opciones_menu_newevento = scaner_menu_nuevo_evento.nextLine();
@@ -805,19 +819,27 @@ public class Gestor {
                     LocalDate fecha_parseada = Validaciones.fechaParseada(fecha_evento);
                     listado_eventos.add(new Evento(nombre,invitado,sala,fecha_parseada,hora_evento,precio_evento,tipoEvento,numeroAsistentesmaximo));
                     AgregarEvento();
-                    System.out.println("Evento añadido con exito");
+                    System.out.println("Evento añadido con exito: "+usuarioactivo.getNombre());
                     break;
                 case "2":
                     System.out.println("Modificar Evento");
                     break;
                 case "3":
                     System.out.println("Eliminar Evento");
+                    EliminarEvento(usuarioactivo);
                     break;
                 case "4":
                     System.out.println("Mostrar Evento");
                     break;
                 case "5":
                     System.out.println("Listado de Eventos");
+                    ListarEventos();
+                    GestionarEvento();
+                    break;
+                case "6":
+                    System.out.println("Informacion del evento seleccionado");
+                    ListarUnEvento();
+                    GestionarEvento();
                     break;
                 default:
                     System.out.println("Vuelva a introducir la opcion: ");
@@ -913,12 +935,12 @@ public class Gestor {
         }
     }
 
-    public static void AgregarReserva(List<Reserva> listado_reservas) throws IOException {
-        FileOutputStream fos = new FileOutputStream("src/data/reservasdef.dat");
-        ObjectOutputStream oss = new ObjectOutputStream(fos);
+    public static void AgregarReserva(ArrayList<Reserva> listado_reservas) throws IOException {
+        FileOutputStream fos_reservas = new FileOutputStream("src/data/listadoreservasdef.dat");
+        ObjectOutputStream oss_reservas = new ObjectOutputStream(fos_reservas);
         try{
             for (Reserva r : listado_reservas) {
-                oss.writeObject(r);
+                oss_reservas.writeObject(r);
             }
 
         } catch (FileNotFoundException ex) {
@@ -927,7 +949,268 @@ public class Gestor {
             ex.printStackTrace();
         }
     }
-}
+    public void EliminarEvento(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+        Scanner sacnner_de_eliminar_evento = new Scanner(System.in);
+        boolean repetir = true;
+        int eleccion;
+
+        do {
+            System.out.println("### ELIMINAR EVENTOS ###");
+            int j = 1;
+            for (Evento e : listado_eventos) {
+                System.out.println(j + "/////" + e.getNombre() + " --- " + e.getInvitado() + " --- " + e.getSala().nombre + " --- " + e.getFecha() + "---" + e.getPrecio() + " €" + " --- " + e.getTipoEvento() + " --- " + "Num-Asist " + e.getNumeoroAsistentesmaximo() + " --- ");
+                j++;
+            }
+            System.out.println("0. Volver al menú del administrador");
+            System.out.print("Elige el número del evento a eliminar: ");
+
+            if (sacnner_de_eliminar_evento.hasNextInt()) {
+                eleccion = sacnner_de_eliminar_evento.nextInt();
+                sacnner_de_eliminar_evento.nextLine();
+
+                if (eleccion == 0) {
+                    menuSuperadminstrador(usuarioactivo);
+                } else if (eleccion > 0 && eleccion <= listado_eventos.size()) {
+                    listado_eventos.remove(eleccion - 1);
+                    System.out.println("¡Evento eliminado con éxito!");
+                    AgregarEvento();
+                } else {
+                    System.out.println("Número inválido. Inténtalo de nuevo.");
+                }
+            } else {
+                System.out.println("Entrada inválida. Escribe un número.");
+                sacnner_de_eliminar_evento.nextLine();
+            }
+        } while (repetir);
+    }
+
+    public void GestorAsistente() throws EmailExsistenteException, IOException {
+        String opcion_gestor_asistente;
+        Scanner entrada = new Scanner(System.in);
+        do {
+
+            System.out.println("Bienvenido al Gestor de Asistente");
+            System.out.println();
+            System.out.println("1. Listar Asistentes");
+            System.out.println("2. Ver un unico Asistente");
+            System.out.println("0. Salir al menu principal");
+            System.out.println();
+            System.out.print("Selecciona la opcion deseada: ");
+            opcion_gestor_asistente = entrada.nextLine();
+            switch (opcion_gestor_asistente) {
+                case "0":
+                    menuSuperadminstrador(usuarioactivo);
+                    break;
+                case "1":
+                    ListarAsistentes();
+                    GestorAsistente();
+                    break;
+                case "2":
+                    ListarUnicoAsistente();
+                    GestorAsistente();
+                    break;
+                default:
+                    System.out.println("La opcion introducida no es correctar vuelva a intentarlo: ");
+            }
+
+
+        } while (!opcion_gestor_asistente.equals("2"));
+    }
+    public void GestorReservas() throws EmailExsistenteException, IOException {
+        String opcion_gestor_reserva;
+        Scanner entrada = new Scanner(System.in);
+        do {
+
+            System.out.println("Bienvenido al Gestor de Reserva");
+            System.out.println();
+            System.out.println("1. Listar Reserva");
+            System.out.println("2. Ver una unica Reserva");
+            System.out.println("0. Salir al menu principal");
+            System.out.println();
+            System.out.print("Selecciona la opcion deseada: ");
+            opcion_gestor_reserva = entrada.nextLine();
+            switch (opcion_gestor_reserva) {
+                case "0":
+                    menuSuperadminstrador(usuarioactivo);
+                    break;
+                case "1":
+                    ListarReservas();
+                    GestorReservas();
+                    break;
+                case "2":
+                    ListarUnaReserva();
+                    GestorReservas();
+                    break;
+                default:
+                    System.out.println("La opcion introducida no es correctar vuelva a intentarlo: ");
+            }
+
+
+        } while (!opcion_gestor_reserva.equals("2"));
+    }
+
+    public void ListarAsistentes(){
+
+        int i = 1;
+        for (Usuario u : listado_usuarios ) {
+            if (u instanceof Asistente) {
+                System.out.println(i + "|" + u.getNombre() + "|" + u.getApellido() + "|" + u.getEmail() + "|" + u.getTelf() + "|" + u.getFechaNacimiento() + "|" + u.getPassword());
+                i++;
+            }
+        }
+    }
+
+    public void ListarUnicoAsistente(){
+        boolean asistentecorrecto = false;
+        Scanner entrada = new Scanner (System.in);
+        int numero_usuario = 0;
+        Asistente asistenteparamostrar = null;
+
+                while (!asistentecorrecto) {
+                    try {
+                        ArrayList<Asistente> asistente_mostrar = new ArrayList<>();
+                        int i = 1;
+                        for (Usuario u  : listado_usuarios ) {
+                            if (u instanceof Asistente) {
+                                asistente_mostrar.add((Asistente)u);
+                                System.out.println(i + " " + u.getNombre());
+                                i++;
+                            }
+                        }
+
+                        System.out.println("Seleccione el numero de la usuario: ");
+                        numero_usuario=entrada.nextInt();
+                        entrada.nextLine();
+                                if (numero_usuario > 0 && numero_usuario <= asistente_mostrar.size()) {
+                                    Asistente asistenteSeleccionado = asistente_mostrar.get(numero_usuario - 1);
+                                    System.out.println(asistenteSeleccionado.getNombre() + "|" + asistenteSeleccionado.getApellido() + "|" + asistenteSeleccionado.getEmail() + "|" + asistenteSeleccionado.getTelf() + "|" + asistenteSeleccionado.getFechaNacimiento() + "|" + asistenteSeleccionado.getPassword());
+                                    asistentecorrecto = true;
+                                }
+
+
+                    } catch (InputMismatchException ex) {
+                        System.out.println("No has introducido ningun numero, introduce el numero de la sala: ");
+                        entrada.nextLine();
+                    }
+                }
+
+        }
+
+    public void ListarEventos(){
+
+        int i = 1;
+        for (Evento e: listado_eventos ) {
+                System.out.println(i + "|" + e.getNombre() + "|" + e.getTipoEvento() + "|" + e.getSala() + "|" + e.getPrecio() + "|" + e.getHora() + "|" + e.getFecha()+ "|" + e.getInvitado()+ "|" + e.getNumeoroAsistentesmaximo());
+                i++;
+            }
+        }
+    public void ListarUnaReserva(){
+        boolean eventocorrecto = false;
+        Scanner entrada = new Scanner (System.in);
+        int numero_reserva = 0;
+
+        while (!eventocorrecto) {
+            try {
+                ArrayList<Reserva> reserva_mostrar = new ArrayList<>();
+                int i = 1;
+                for (Reserva r  : listado_reservas ) {
+                        reserva_mostrar.add((Reserva) r);
+                        System.out.println(i + " " + r.getId());
+                        i++;
+                }
+
+                System.out.println("Seleccione el numero de la usuario: ");
+                numero_reserva=entrada.nextInt();
+                entrada.nextLine();
+                if (numero_reserva > 0 && numero_reserva <= reserva_mostrar.size()) {
+                    Reserva reserva_seleccionada = reserva_mostrar.get(numero_reserva - 1);
+                    reserva_seleccionada.reservas_realizadas();
+                    eventocorrecto = true;
+                }
+
+
+            } catch (InputMismatchException ex) {
+                System.out.println("No has introducido ningun numero, introduce el numero de la sala: ");
+                entrada.nextLine();
+            }
+        }
+
+
+
+
+    }
+    public void ListarUnEvento() {
+        boolean eventocorrecto = false;
+        Scanner entrada = new Scanner(System.in);
+        int numero_usuario = 0;
+
+        while (!eventocorrecto) {
+            try {
+                ArrayList<Evento> evento_mostrar = new ArrayList<>();
+                int i = 1;
+                for (Evento u : listado_eventos) {
+                    evento_mostrar.add((Evento) u);
+                    System.out.println(i + " " + u.getNombre());
+                    i++;
+                }
+
+                System.out.println("Seleccione el numero de la usuario: ");
+                numero_usuario = entrada.nextInt();
+                entrada.nextLine();
+                if (numero_usuario > 0 && numero_usuario <= evento_mostrar.size()) {
+                    Evento evento_seleccionado = evento_mostrar.get(numero_usuario - 1);
+                    System.out.println(evento_seleccionado.getNombre() + "|" + evento_seleccionado.getTipoEvento() + "|" + evento_seleccionado.getSala() + "|" + evento_seleccionado.getPrecio() + "|" + evento_seleccionado.getHora() + "|" + evento_seleccionado.getFecha() + "|" + evento_seleccionado.getInvitado() + "|" + evento_seleccionado.getNumeoroAsistentesmaximo());
+                    eventocorrecto = true;
+                }
+
+
+            } catch (InputMismatchException ex) {
+                System.out.println("No has introducido ningun numero, introduce el numero de la sala: ");
+                entrada.nextLine();
+            }
+        }
+
+
+    }
+    public void LeerReservas () throws IOException {
+        FileInputStream fis_reservas = new FileInputStream("src/data/listadoreservasdef.dat");
+        ObjectInputStream ois_reservas = new ObjectInputStream(fis_reservas);
+        try {
+
+            while (true) {
+                try {
+                    Reserva r = (Reserva) ois_reservas.readObject();
+                    // Comprueba si la reserva pertenece al usuario logueado
+                    listado_reservas.add(r);
+                } catch (EOFException eofx) {
+                    eofx.getMessage();
+                    // Fin del archivo alcanzado
+                    System.out.println("Fichero leído");
+                    break;
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Mostrar las reservas del usuario activo
+
+    }
+    public void ListarReservas () throws IOException {
+        int i = 1;
+        for (Reserva r : listado_reservas) {
+            System.out.println(i + "|" + r.getId() + "|" + r.usuarioactivo.getNombre() + "|" + r.getEvento().getNombre() + "|" + r.getButaca().getCordenada() + "|" + r.getHora() + "|" + r.getFecha() + "|" + r.getEvento().getSala().getNombre());
+            i++;
+        }
+    }
+    }
+
+
 
 
 

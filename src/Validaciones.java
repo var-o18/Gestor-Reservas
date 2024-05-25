@@ -97,6 +97,7 @@ public class Validaciones {
     public static boolean ComprobarNombreApellidos(String nombre) {
         // Una condicion minima para que se tengan que introducir caracteres oal menos 5 obligatoriamente
         nombre.replace(" ", "");
+
         if (nombre.length() >= 3) {
             for (int i = 0; i < nombre.length(); i++) {
                 char carac_nombre = nombre.charAt(i);
@@ -418,12 +419,11 @@ public class Validaciones {
     public static boolean ValidarFechaEvento(String fecha_evento){
 
         if (fecha_evento.length() != 10 || fecha_evento.charAt(2) != '-' || fecha_evento.charAt(5) != '-') {
-            System.out.print("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY): ");
             return false;
         } else {
             String fechanum = fecha_evento.replace("-", "");
             if (!Validaciones.validarNumeros(fechanum)) {
-                System.out.print("Fecha no válida. Introduce la fecha en el formato indicado (DD-MM-YYYY):");
+
                 return false;
             } else {
                 String[] dia_mes_anyo = fecha_evento.split("-");
@@ -446,11 +446,10 @@ public class Validaciones {
                                 if (fecha_valida.isAfter(LocalDate.now())){
                                     return true;
                                 }else {
-                                    System.out.println("La fecha debe ser posterior a la fecha de hoy ");
                                     return false;
                                 }
                             } else {
-                                System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+
                                 return false;
                             }
                         }
@@ -459,7 +458,7 @@ public class Validaciones {
                             if (dia >= 1 && dia <=30) {
                                 return true;
                             } else {
-                                System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+
                                 return false;
                             }
                         }
@@ -473,7 +472,7 @@ public class Validaciones {
                                 if (dia >= 1 && dia <=29) {
                                     return true;
                                 } else {
-                                    System.out.print("Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+
                                     return false;
                                 }
                             } else {
@@ -484,18 +483,17 @@ public class Validaciones {
                                 if (dia >= 1 && dia <=28) {
                                     return true;
                                 } else {
-                                    System.out.print("Día no válido. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+
                                     return false;
                                 }
                             }
                         }
 
                     } else {
-                        System.out.print("El mes debe estar comprendido entre 1 y 12. Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
+
                         return false;
                     }
                 } else {
-                    System.out.print("El año debe ser superior a esta fecha " + LocalDate.now() + ". Introduce de nuevo la fecha en el formato indicado (DD-MM-YYYY):");
                     return false;
                 }
             }

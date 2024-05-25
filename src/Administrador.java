@@ -28,6 +28,8 @@ public class Administrador extends Usuario {
                 ", password='" + password + '\'' +
                 ", telf='" + telf + '\'' +
                 ", fechaNacimiento=" + fechaNacimiento +
+                ", permisos=" + permisos +
+
                 '}';
     }
 }

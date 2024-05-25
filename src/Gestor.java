@@ -1,9 +1,12 @@
 import java.io.*;
 
+import excepciones.DniExistenteException;
 import excepciones.EmailExsistenteException;
+import excepciones.FechaeventoExcption;
 import org.mindrot.jbcrypt.BCrypt;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -119,7 +122,7 @@ public class Gestor {
      *
      * @return devuelve true en caso de que la fecha sea correcta y false en caso contrario, asi tambien devolviendo una nueva introducción de fecha
      */
-    public void menuPrincipal() throws IOException, EmailExsistenteException {
+    public void menuPrincipal() throws IOException, EmailExsistenteException, DniExistenteException, FechaeventoExcption {
         String opcion_login;
         boolean salir_menu_principal = false;
         do {
@@ -157,7 +160,7 @@ public class Gestor {
      * Funcion que es el menu de principal de login, donde aprecen dos ramas una para logearte en caso de tener cuenta en DELECTARE MULTIEVENTOS y si no se relaciona con ninguna cyuenta,
      * te manda a un gestor de seguridad que te pregunta por tu cuenta si quieres volver a logearte o registarte.
      */
-    public void login(Usuario usuarioactivo) throws IOException,EmailExsistenteException {
+    public void login(Usuario usuarioactivo) throws IOException,EmailExsistenteException, DniExistenteException, FechaeventoExcption {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -244,7 +247,7 @@ public class Gestor {
      * @param usuarioactivo, este menu es el principal y ya trabajaria con el asistente ingresado, proporciona las opciones de seleccionar eventos y est asu vez mostaria los
      * cuenta con la información de eventos de ese usuario y por ultimo la opcion de log of para deslogearse(se desloguea el asistente)
      * */
-    public Evento menuDeOpciones(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+    public Evento menuDeOpciones(Usuario usuarioactivo) throws IOException, EmailExsistenteException, DniExistenteException,FechaeventoExcption {
         String email;
         email = usuarioactivo.email;
         String opcion_menu;
@@ -289,9 +292,8 @@ public class Gestor {
                                  * */
 
                                 if (Validaciones.validarNumeros(seleccion_evento)) {
-                                    seleccion_evento_ok=true;
                                     BigInteger parseo_seleccion_evento = new BigInteger(seleccion_evento);
-                                    if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size())) < 0){
+                                    if (parseo_seleccion_evento.compareTo(BigInteger.ZERO)>= 0 && parseo_seleccion_evento.compareTo(BigInteger.valueOf(listado_eventos.size()))<0){
                                         System.out.println(
                                                 "Nombre evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getNombre() + '\n' +
                                                         "Fecha del evento: " + listado_eventos.get(parseo_seleccion_evento.intValue()).getFecha() + '\n' +
@@ -305,9 +307,11 @@ public class Gestor {
                                         evento = devolver_evento(seleccion_evento, listado_eventos);
                                         //y a menu reservas le pasamos este asistente y el vento en concreto qlo devolvemos en le paso anterior
                                         menu_reservas(evento, usuarioactivo);
+                                        seleccion_evento_ok=true;
                                     }else {
                                         System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
                                         iteración_eventos=false;
+
                                     }
                                 } else {
                                     System.out.println("El numero de evento introducido no correcto, vuleva a introducirlo");
@@ -316,6 +320,7 @@ public class Gestor {
                             }catch(NumberFormatException e){
                                 System.out.println("Numero de evento incorrecto");
                                 iteración_eventos=false;
+
                             }
                         }
 
@@ -345,7 +350,7 @@ public class Gestor {
         } while (!opcion_menu.equals("3"));
         return evento;
     }
-    public void menuSuperadminstrador(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+    public void menuSuperadminstrador(Usuario usuarioactivo) throws IOException, EmailExsistenteException, DniExistenteException, FechaeventoExcption {
         Scanner scanner = new Scanner(System.in);
         String opcion;
         scanner = new Scanner(System.in);
@@ -395,7 +400,7 @@ public class Gestor {
      * Una vez recogemos estos datos no almacenaos en listado_asistentes .
      *
      * */
-    public Asistente nuevoAsistente() throws IOException, EmailExsistenteException {
+    public Asistente nuevoAsistente() throws IOException, EmailExsistenteException, DniExistenteException, FechaeventoExcption {
         Scanner scaner_menu_nuevo_asistente = new Scanner(System.in);
         String opciones_menu_newasistente;
         do {
@@ -414,9 +419,9 @@ public class Gestor {
                     System.out.println("Rellena el siguiente formulario:");
                     System.out.println();
                     String email = "";
+                    String dni="";
                         try {
                             do {
-                            boolean emailexistente = false;
                             System.out.print("Introduce Email: ");
                             email = scaner_menu_nuevo_asistente.nextLine();
                             for (Usuario usuario : listado_usuarios) {
@@ -428,19 +433,31 @@ public class Gestor {
                             }
                             if (!Validaciones.ComprobarCorreo(email)) {
                                 System.out.println("Email introducido contiene caracteres invalidos:");
+
                             }
                             } while (!Validaciones.ComprobarCorreo(email));
                         }catch (EmailExsistenteException e){
                             System.out.println(e.getMessage());
                             nuevoAsistente();
                         }
-
-                    System.out.print("Introduce DNI: ");
-                    String dni = scaner_menu_nuevo_asistente.nextLine();
-                    if (!Validaciones.ComprobarDNI(dni)) {
+                    try {
                         do {
-                            dni = scaner_menu_nuevo_asistente.nextLine();
-                        } while (!Validaciones.ComprobarDNI(dni));
+                            System.out.print("Introduce DNI: ");
+                             dni = scaner_menu_nuevo_asistente.nextLine();
+                            for (Usuario usuario : listado_usuarios) {
+                                if (usuario instanceof Asistente) {
+                                    if (dni.equals(((Asistente) usuario).getDni())) {
+                                        throw new DniExistenteException();
+                                    }
+                                }
+                            }
+                            if (!Validaciones.ComprobarCorreo(email)) {
+                                System.out.println("DNI introducido contiene caracteres invalidos:");
+                            }
+                        } while (!Validaciones.ComprobarCorreo(email));
+                    }catch (DniExistenteException e){
+                        System.out.println(e.getMessage());
+                        nuevoAsistente();
                     }
                     System.out.print("Introduce Nombre: ");
                     String nombre = scaner_menu_nuevo_asistente.nextLine();
@@ -516,7 +533,7 @@ public class Gestor {
      * @param usuarioactivo trabajamos con el objeto asistente, para relacionar la reserva con el asistente en cuestion.
      * @param evento trabajamos con objeto evento opara asociar la reserva con el evento en cuestion.
      * */
-    public void menu_reservas( Evento evento, Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+    public void menu_reservas( Evento evento, Usuario usuarioactivo) throws IOException, EmailExsistenteException, DniExistenteException,FechaeventoExcption {
         Scanner entrada = new Scanner(System.in);
 
         String opcion_menu_reservas;
@@ -617,7 +634,7 @@ public class Gestor {
  * y trabaja con asistente para mandarlo despues a menu principal.
  *
  * **/
-    public void metodo_pagos(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+    public void metodo_pagos(Usuario usuarioactivo) throws IOException, EmailExsistenteException, DniExistenteException,FechaeventoExcption {
         //VALIDACIONES DE PAGO
         String opcion_pago;
         String correo_paypal;
@@ -680,7 +697,7 @@ public class Gestor {
      * @param usuarioactivo le paso asistente para que trabe con el y sepa que el ese asistente a confirmado la compra
      *
      * **/
-    public void confirmar_compra( Usuario usuarioactivo,  Evento evento, Butaca butaca) throws IOException, EmailExsistenteException {
+    public void confirmar_compra( Usuario usuarioactivo,  Evento evento, Butaca butaca) throws IOException, EmailExsistenteException,DniExistenteException, FechaeventoExcption {
         String opcion_comprobar_compra;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -709,15 +726,16 @@ public class Gestor {
 
         } while (!opcion_comprobar_compra.equals("2"));
     }
-    public  Evento GestionarEvento() throws IOException, InputMismatchException, EmailExsistenteException {
+    public  Evento GestionarEvento() throws IOException, InputMismatchException, EmailExsistenteException, DniExistenteException, FechaeventoExcption {
         Scanner scaner_menu_nuevo_evento = new Scanner(System.in);
         String opciones_menu_newevento;
         Sala sala;
+
         int numero_sala = 0;
         boolean atributocontrol = false;
         boolean preciocorrecto = false;
         boolean numeroasistentescorrecto=false;
-        String fecha_evento;
+        String fecha_evento = null;
         int numeroAsistentesmaximo = 0;
         boolean salacorrecta = false;
         double precio_evento = 0.0;
@@ -772,15 +790,18 @@ public class Gestor {
                         }
                     }
                     sala = listado_salas[numero_sala];
+                    do {
+                    try {
+                        System.out.print("Introduce fecha: ");
+                        fecha_evento = scaner_menu_nuevo_evento.nextLine();
 
-
-                    System.out.print("Por favor, ingrese su fecha del evento (DD-MM-YYYY): ");
-                     fecha_evento = scaner_menu_nuevo_evento.nextLine();
-                    if (!Validaciones.ValidarFechaEvento(fecha_evento)) {
-                        do {
-                            fecha_evento = scaner_menu_nuevo_evento.nextLine();
-                        } while (!Validaciones.ValidarFechaEvento(fecha_evento));
+                        if (!Validaciones.ValidarFechaEvento(fecha_evento)) {
+                            throw new FechaeventoExcption("Fecha introducida contiene caracteres inválidos.");
+                        }
+                    } catch (FechaeventoExcption e) {
+                        System.out.println(e.getMessage());
                     }
+                    } while (!Validaciones.ValidarFechaEvento(fecha_evento));
                     System.out.print("Introduce Hora del Evento: ");
                     String hora_evento = scaner_menu_nuevo_evento.nextLine();
                     if (!Validaciones.ValidarHora(hora_evento)) {
@@ -819,10 +840,13 @@ public class Gestor {
                     LocalDate fecha_parseada = Validaciones.fechaParseada(fecha_evento);
                     listado_eventos.add(new Evento(nombre,invitado,sala,fecha_parseada,hora_evento,precio_evento,tipoEvento,numeroAsistentesmaximo));
                     AgregarEvento();
-                    System.out.println("Evento añadido con exito: "+usuarioactivo.getNombre());
+                    System.out.println("Evento añadido con exito");
                     break;
                 case "2":
                     System.out.println("Modificar Evento");
+                    ModificarEvento();
+                    System.out.println("Evento modificado con exito");
+                    GestionarEvento();
                     break;
                 case "3":
                     System.out.println("Eliminar Evento");
@@ -893,7 +917,22 @@ public class Gestor {
         }
 
     }
-    public void AgregarEvento() throws IOException {
+    public void IngresasEvenentoModificado(ArrayList<Evento> listado_eventos, String s) throws IOException {
+        try{
+            fos=new FileOutputStream("src/data/listadoeventos.dat");
+            oss=new ObjectOutputStream(fos);
+            for (Evento e: listado_eventos){
+                oss.writeObject(e);
+
+            }
+
+        }catch (FileNotFoundException ex){
+
+        }finally {
+            fos.close();
+        }
+    }
+    public void AgregarEvento( )throws IOException {
         try{
             fos=new FileOutputStream("src/data/listadoeventos.dat");
             oss=new ObjectOutputStream(fos);
@@ -909,12 +948,12 @@ public class Gestor {
         }
     }
 
+
     public void LeerEvento() throws IOException {
         fis_eventos = new FileInputStream("src/data/listadoeventos.dat");
         ois_eventos = new ObjectInputStream(fis_eventos);
         try{
             while (true) {
-
                 try {
                     Evento e = (Evento) ois_eventos.readObject();
                     listado_eventos.add(e);
@@ -949,7 +988,10 @@ public class Gestor {
             ex.printStackTrace();
         }
     }
-    public void EliminarEvento(Usuario usuarioactivo) throws IOException, EmailExsistenteException {
+    public void EliminarReserva(){
+
+    }
+    public void EliminarEvento(Usuario usuarioactivo) throws IOException, EmailExsistenteException,DniExistenteException, FechaeventoExcption {
         Scanner sacnner_de_eliminar_evento = new Scanner(System.in);
         boolean repetir = true;
         int eleccion;
@@ -984,7 +1026,7 @@ public class Gestor {
         } while (repetir);
     }
 
-    public void GestorAsistente() throws EmailExsistenteException, IOException {
+    public void GestorAsistente() throws EmailExsistenteException, IOException, DniExistenteException, FechaeventoExcption {
         String opcion_gestor_asistente;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -1016,7 +1058,7 @@ public class Gestor {
 
         } while (!opcion_gestor_asistente.equals("2"));
     }
-    public void GestorReservas() throws EmailExsistenteException, IOException {
+    public void GestorReservas() throws EmailExsistenteException, IOException,DniExistenteException, FechaeventoExcption {
         String opcion_gestor_reserva;
         Scanner entrada = new Scanner(System.in);
         do {
@@ -1201,14 +1243,200 @@ public class Gestor {
         // Mostrar las reservas del usuario activo
 
     }
-    public void ListarReservas () throws IOException {
+    public void ListarReservas (){
         int i = 1;
         for (Reserva r : listado_reservas) {
             System.out.println(i + "|" + r.getId() + "|" + r.usuarioactivo.getNombre() + "|" + r.getEvento().getNombre() + "|" + r.getButaca().getCordenada() + "|" + r.getHora() + "|" + r.getFecha() + "|" + r.getEvento().getSala().getNombre());
             i++;
         }
     }
-    }
+    public void ModificarEvento() throws IOException, EmailExsistenteException, FechaeventoExcption, DniExistenteException {
+        Scanner entrada_modificar_evento = new Scanner(System.in);
+
+        boolean opcion_ok = false; //comprobar opción válida
+        boolean numeroasistentescorrecto =false;
+        int opcion = 0;
+        int j_eventos =1;
+        int sala_num = 0;
+        int numeroAsistentesmaximo = 0;
+        double precio_evento = 0;
+        boolean salacorrecta =false;
+        boolean preciocorrecto = false;
+        Evento evento_a_modificar = null; // evento que vamos a modificar
+        String nombre;
+        String fecha_cadena = null;
+        String hora_cadena;
+        String tipo;
+        String confirmar_cambios;
+        Sala sala;
+
+        //LISTADO DE EVENTOS
+        do {
+
+            System.out.println("MODIFICAR EVENTO");
+            System.out.println("----------------");
+            for (Evento e : listado_eventos) {
+                System.out.println(j_eventos + ". " + e.getNombre());
+                j_eventos++;
+            }
+            System.out.println("0. Volver");
+
+            //Introducimos una opcion del evento y validamos si ese evento es correcto o no se apasao de largo y demas es decir compramobamos si conincide en el array list
+            while (!opcion_ok) {
+                try {
+                    System.out.println("Seleccione el evento que desea modificar: ");
+                    opcion = entrada_modificar_evento.nextInt();
+                    evento_a_modificar=listado_eventos.get(opcion -1);
+                    if (opcion >= 1 && opcion <= listado_eventos.size()) {
+                        opcion_ok = true;
+                        entrada_modificar_evento.nextLine();
+                    } else if (opcion == 0) {
+                        GestionarEvento();
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Introduce otra vez por favor");
+                    entrada_modificar_evento.nextLine();
+                }
+            }
+        } while (!opcion_ok);
+        System.out.print("Nombre actual del evento "+evento_a_modificar.getNombre());
+        System.out.println();
+        System.out.print("Introduce Nombre del Evento: ");
+         nombre = entrada_modificar_evento.nextLine();
+        if (!Validaciones.ComprobarNombreApellidos(nombre)) {
+            do {
+                nombre = entrada_modificar_evento.nextLine();
+            } while (!Validaciones.ComprobarNombreApellidos(nombre));
+        }
+        System.out.print("Nombre actual del Invitado "+evento_a_modificar.getInvitado());
+        System.out.println();
+        System.out.print("Introduce Nombre del Invitado: ");
+        String invitado = entrada_modificar_evento.nextLine();
+        if (!Validaciones.ComprobarNombreApellidos(invitado)) {
+            do {
+                invitado = entrada_modificar_evento.nextLine();
+            } while (!Validaciones.ComprobarNombreApellidos(invitado));
+        }
+        System.out.print("Sala actual "+evento_a_modificar.getSala().getNombre());
+        System.out.println();
+        int i = 0;
+        for (Sala s : listado_salas ) {
+            System.out.println(i + " " + s.getNombre());
+            i++;
+        }
+
+        while (!salacorrecta) {
+            try {
+                System.out.print("Sala actual "+evento_a_modificar.getSala().getNombre());
+                System.out.println("Seleccione el numero de la sala (1-5): ");
+                sala_num =entrada_modificar_evento.nextInt();
+                entrada_modificar_evento.nextLine();
+                //COMPROBAR QUE LA SALA EXISTE
+                if (sala_num> 0 &&  sala_num <= listado_salas.length){
+                    salacorrecta = true;
+                }
+
+            } catch (InputMismatchException ex) {
+                System.out.println("No has introducido ningun numero, introduce el numero de la sala: ");
+                entrada_modificar_evento.nextLine();
+            }
+        }
+        sala = listado_salas[sala_num];
+        do {
+            try {
+                System.out.print("Fecha actual evento "+evento_a_modificar.getFecha());
+                System.out.println();
+                System.out.print("Introduce fecha: ");
+                fecha_cadena = entrada_modificar_evento.nextLine();
+
+                if (!Validaciones.ValidarFechaEvento(fecha_cadena)) {
+                    throw new FechaeventoExcption("Fecha introducida contiene caracteres inválidos.");
+                }
+            } catch (FechaeventoExcption e) {
+                System.out.println(e.getMessage());
+            }
+        } while (!Validaciones.ValidarFechaEvento(fecha_cadena));
+        System.out.print("Hora actual evento "+evento_a_modificar.getHora());
+        System.out.println();
+        System.out.print("Introduce nueva Hora del Evento: ");
+        String hora_evento = entrada_modificar_evento.nextLine();
+        if (!Validaciones.ValidarHora(hora_evento)) {
+            do {
+                hora_evento = entrada_modificar_evento.nextLine();
+            } while (!Validaciones.ValidarHora(hora_evento));
+        }
+
+        while (!preciocorrecto){
+            try {
+                System.out.print("Precio actual evento "+evento_a_modificar.getPrecio());
+                System.out.println();
+                System.out.print("Introduce Precio del Evento: ");
+                precio_evento = entrada_modificar_evento.nextDouble();
+                preciocorrecto = true;
+                entrada_modificar_evento.nextLine();
+            } catch (InputMismatchException e) {
+                entrada_modificar_evento.nextLine();//volvemos a mostrar el
+            }
+        }
+        System.out.print("Tipo actual evento "+evento_a_modificar.getTipoEvento());
+        System.out.println();
+        System.out.print("Introduce el Tipo del Evento: ");
+        String tipoEvento= entrada_modificar_evento.nextLine();
+        if (!Validaciones.ComprobarNombreApellidos(tipoEvento)) {
+            do {
+                tipoEvento = entrada_modificar_evento.nextLine();
+            } while (!Validaciones.ComprobarNombreApellidos(tipoEvento));
+        }
+
+        while (!numeroasistentescorrecto){
+            try {
+                System.out.print("Numero actual asistentes "+evento_a_modificar.getNumeoroAsistentesmaximo());
+                System.out.println();
+                System.out.print("Introduce Numero maximo asistentes: ");
+                numeroAsistentesmaximo = entrada_modificar_evento.nextInt();
+                numeroasistentescorrecto = true;
+            } catch (InputMismatchException e) {
+                entrada_modificar_evento.nextLine();//volvemos a mostrar el
+            }
+        }
+        LocalDate fecha_evento_parseada = Validaciones.fechaParseada(fecha_cadena);
+        evento_a_modificar = listado_eventos.get(opcion - 1);
+        //CONFIRMAR CAMBIOS
+        System.out.println("***********");
+        System.out.println("Nombre: " + nombre);
+        System.out.println("Sala: " + sala.getNombre());
+        System.out.println("Fecha: " + fecha_cadena);
+        System.out.println("Hora: " + hora_evento);
+        System.out.println("Precio: " + precio_evento);
+        System.out.println("Tipo: " + tipoEvento);
+        entrada_modificar_evento.nextLine();
+        do {
+            System.out.println("¿Quieres confirmar los cambios?");
+            System.out.println("1. Confirmar");
+            System.out.println("0. Volver");
+            confirmar_cambios = entrada_modificar_evento.nextLine();
+            switch (confirmar_cambios) {
+                case "1":
+                    evento_a_modificar.setNombre(nombre);
+                    evento_a_modificar.setSala(sala);
+                    evento_a_modificar.setFecha(fecha_evento_parseada);
+                    evento_a_modificar.setHora(hora_evento);
+                    evento_a_modificar.setPrecio(precio_evento);
+                    evento_a_modificar.setTipoEvento(tipoEvento);
+                    IngresasEvenentoModificado(listado_eventos, "src/data/eventos.data");
+                    GestionarEvento();
+                    break;
+                case "0":
+                    GestionarEvento();
+                    break;
+                default:
+                    System.out.println("Opción no válida");
+                    break;
+            }
+
+            } while (!confirmar_cambios.equals("1") && !confirmar_cambios.equals("0"));
+        }
+}
 
 
 

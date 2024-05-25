@@ -31,6 +31,7 @@ public class Asistente extends Usuario  {
                 ", password='" + password + '\'' +
                 ", telf='" + telf + '\'' +
                 ", fechaNacimiento=" + fechaNacimiento +
+                ", dni=" + dni +
                 '}';
     }
 }

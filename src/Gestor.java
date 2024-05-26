@@ -1104,11 +1104,11 @@ public class Gestor {
         Scanner entrada = new Scanner(System.in);
         do {
 
-            System.out.println("Bienvenido al Gestor de Reserva");
+            System.out.println("Bienvenido al Gestor de Reservas");
             System.out.println();
-            System.out.println("1. Listar Reserva");
+            System.out.println("1. Listar Reservas");
             System.out.println("2. Ver una unica Reserva");
-            System.out.println("3. Ver una unica Reserva");
+            System.out.println("3. Cancelar una reserva");
             System.out.println("0. Salir al menu principal");
             System.out.println();
             System.out.print("Selecciona la opcion deseada: ");
@@ -1193,7 +1193,7 @@ public class Gestor {
         }
     }
 
-    public void ListarUnaReserva() {
+    public void ListarUnaReserva() throws EmailExsistenteException, FechaeventoExcption, IOException, DniExistenteException {
         boolean eventocorrecto = false;
         Scanner entrada = new Scanner(System.in);
         int numero_reserva = 0;
@@ -1209,12 +1209,16 @@ public class Gestor {
                 }
 
                 System.out.println("Seleccione el numero de la usuario: ");
+                System.out.println("0.Volver al Gestor de Reservas ");
                 numero_reserva = entrada.nextInt();
                 entrada.nextLine();
                 if (numero_reserva > 0 && numero_reserva <= reserva_mostrar.size()) {
                     Reserva reserva_seleccionada = reserva_mostrar.get(numero_reserva - 1);
                     reserva_seleccionada.reservas_realizadas();
                     eventocorrecto = true;
+                }
+                if (numero_reserva==0){
+                    GestorReservas();
                 }
 
 

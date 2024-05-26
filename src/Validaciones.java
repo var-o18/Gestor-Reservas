@@ -38,8 +38,28 @@ public class Validaciones {
         return true;
 
     }
+    public static boolean validarPrecio(String texto) {
+        if (texto == null || texto.isEmpty()) {
+            throw new NumberFormatException("Lo que ha introducido está a null o está vacío");
+        }
 
-    public static boolean validarNumeros(String texto) throws NumberFormatException {
+        boolean contienemasdeunpuntoycoma = false;
+        for (int i = 0; i < texto.length(); i++) {
+            char caracter = texto.charAt(i);
+            if (caracter == '.' || caracter == ',') {
+                if (contienemasdeunpuntoycoma) {
+                    throw new NumberFormatException("Lo que ha introducido contiene más de un punto decimal o coma");
+                }
+                contienemasdeunpuntoycoma = true;
+            } else if (caracter < '0' || caracter > '9') {
+                throw new NumberFormatException("Lo que ha introducido contiene caracteres no válidos");
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean validarNumeros(String texto) {
         /**
          * Verificamos si la cadena se encuentra a null es decir vacia o la cadena esta a null
          */
@@ -50,7 +70,7 @@ public class Validaciones {
 
         for (int i = 0; i < texto.length(); i++) {
             char caracter = texto.charAt(i);
-            if (caracter < '0' || caracter > '9') {
+           if (caracter < '0' || caracter > '9') {
                throw new NumberFormatException("Lo que ha introducido contiene caracteres no validos");
             }
         }
